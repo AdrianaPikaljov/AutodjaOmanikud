@@ -2,133 +2,170 @@
 {
     partial class Form1
     {
-        /// <summary>
-        ///  Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.TextBox textBox1;          // FullName muudetav
+        private System.Windows.Forms.TextBox textBox2;          // Phone muudetav
+        private System.Windows.Forms.TextBox textBoxSearchName; // Otsing FullName
+        private System.Windows.Forms.TextBox textBoxSearchPhone;// Otsing Phone
+        private System.Windows.Forms.Button button1; // Lisa
+        private System.Windows.Forms.Button button2; // Kustuta
+        private System.Windows.Forms.Button button3; // Uuenda
+        private System.Windows.Forms.Button button4; // Autod
+        private System.Windows.Forms.Button button5; // Hooldus ja Teenused
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.DataGridView dataGridView1;
 
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
+            textBox1 = new TextBox();
+            textBox2 = new TextBox();
+            textBoxSearchName = new TextBox();
+            textBoxSearchPhone = new TextBox();
             button1 = new Button();
             button2 = new Button();
             button3 = new Button();
-            tabControl1 = new TabControl();
-            tabPage1 = new TabPage();
-            tabPage2 = new TabPage();
-            tabPage3 = new TabPage();
-            tabControl1.SuspendLayout();
+            button4 = new Button();
+            button5 = new Button();
+            label1 = new Label();
+            dataGridView1 = new DataGridView();
+            label2 = new Label();
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
+            // 
+            // textBox1
+            // 
+            textBox1.Location = new Point(20, 150);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(250, 23);
+            textBox1.TabIndex = 1;
+            // 
+            // textBox2
+            // 
+            textBox2.Location = new Point(20, 190);
+            textBox2.Name = "textBox2";
+            textBox2.Size = new Size(250, 23);
+            textBox2.TabIndex = 2;
+            // 
+            // textBoxSearchName
+            // 
+            textBoxSearchName.Location = new Point(20, 40);
+            textBoxSearchName.Name = "textBoxSearchName";
+            textBoxSearchName.PlaceholderText = "Otsi nime järgi...";
+            textBoxSearchName.Size = new Size(250, 23);
+            textBoxSearchName.TabIndex = 3;
+            textBoxSearchName.TextChanged += textBoxSearchName_TextChanged;
+            // 
+            // textBoxSearchPhone
+            // 
+            textBoxSearchPhone.Location = new Point(20, 80);
+            textBoxSearchPhone.Name = "textBoxSearchPhone";
+            textBoxSearchPhone.PlaceholderText = "Otsi telefoni järgi...";
+            textBoxSearchPhone.Size = new Size(250, 23);
+            textBoxSearchPhone.TabIndex = 4;
+            textBoxSearchPhone.TextChanged += textBoxSearchPhone_TextChanged;
             // 
             // button1
             // 
-            button1.Location = new Point(110, 73);
+            button1.Location = new Point(20, 230);
             button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 0;
-            button1.Text = "button1";
+            button1.Size = new Size(75, 30);
+            button1.TabIndex = 5;
+            button1.Text = "Lisa";
             button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // button2
             // 
-            button2.Location = new Point(110, 102);
+            button2.Location = new Point(110, 230);
             button2.Name = "button2";
-            button2.Size = new Size(75, 23);
-            button2.TabIndex = 1;
-            button2.Text = "button2";
+            button2.Size = new Size(75, 30);
+            button2.TabIndex = 6;
+            button2.Text = "Kustuta";
             button2.UseVisualStyleBackColor = true;
+            button2.Click += button2_Click_1;
             // 
             // button3
             // 
-            button3.Location = new Point(110, 131);
+            button3.Location = new Point(200, 230);
             button3.Name = "button3";
-            button3.Size = new Size(75, 23);
-            button3.TabIndex = 2;
-            button3.Text = "button3";
+            button3.Size = new Size(75, 30);
+            button3.TabIndex = 7;
+            button3.Text = "Uuenda";
             button3.UseVisualStyleBackColor = true;
+            button3.Click += button3_Click;
             // 
-            // tabControl1
+            // button4
             // 
-            tabControl1.Controls.Add(tabPage1);
-            tabControl1.Controls.Add(tabPage2);
-            tabControl1.Controls.Add(tabPage3);
-            tabControl1.Location = new Point(378, 17);
-            tabControl1.Name = "tabControl1";
-            tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(381, 249);
-            tabControl1.TabIndex = 4;
+            button4.Location = new Point(12, 415);
+            button4.Name = "button4";
+            button4.Size = new Size(91, 23);
+            button4.TabIndex = 8;
+            button4.Text = "Autod";
+            button4.UseVisualStyleBackColor = true;
+            button4.Click += button4_Click;
             // 
-            // tabPage1
+            // button5
             // 
-            tabPage1.Location = new Point(4, 24);
-            tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(373, 221);
-            tabPage1.TabIndex = 0;
-            tabPage1.Text = "Omanikud";
-            tabPage1.UseVisualStyleBackColor = true;
+            button5.Location = new Point(110, 415);
+            button5.Name = "button5";
+            button5.Size = new Size(125, 23);
+            button5.TabIndex = 9;
+            button5.Text = "Hooldus ja Teenused";
+            button5.UseVisualStyleBackColor = true;
+            button5.Click += button5_Click;
             // 
-            // tabPage2
+            // label1
             // 
-            tabPage2.Location = new Point(4, 24);
-            tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(373, 221);
-            tabPage2.TabIndex = 1;
-            tabPage2.Text = "Autod";
-            tabPage2.UseVisualStyleBackColor = true;
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI", 15F);
+            label1.Location = new Point(20, 9);
+            label1.Name = "label1";
+            label1.Size = new Size(70, 28);
+            label1.TabIndex = 10;
+            label1.Text = "Otsing";
+            label1.Click += label1_Click;
             // 
-            // tabPage3
+            // dataGridView1
             // 
-            tabPage3.Location = new Point(4, 24);
-            tabPage3.Name = "tabPage3";
-            tabPage3.Padding = new Padding(3);
-            tabPage3.Size = new Size(373, 221);
-            tabPage3.TabIndex = 2;
-            tabPage3.Text = "Hooldus ja Teenused";
-            tabPage3.UseVisualStyleBackColor = true;
+            dataGridView1.Location = new Point(320, 51);
+            dataGridView1.Name = "dataGridView1";
+            dataGridView1.Size = new Size(450, 350);
+            dataGridView1.TabIndex = 0;
+            dataGridView1.CellClick += dataGridView1_CellClick;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font("Segoe UI", 15F);
+            label2.Location = new Point(20, 119);
+            label2.Name = "label2";
+            label2.Size = new Size(265, 28);
+            label2.TabIndex = 11;
+            label2.Text = "Lisa/Kustuta/Muuda andmed";
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(tabControl1);
-            Controls.Add(button3);
-            Controls.Add(button2);
+            Controls.Add(label2);
+            Controls.Add(label1);
+            Controls.Add(button5);
+            Controls.Add(button4);
+            Controls.Add(dataGridView1);
+            Controls.Add(textBox1);
+            Controls.Add(textBox2);
+            Controls.Add(textBoxSearchName);
+            Controls.Add(textBoxSearchPhone);
             Controls.Add(button1);
+            Controls.Add(button2);
+            Controls.Add(button3);
             Name = "Form1";
-            Text = "Form1";
-            tabControl1.ResumeLayout(false);
+            Text = "Autod ja Omanikud";
+            Load += Form1_Load;
+            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
-        #endregion
-
-        private Button button1;
-        private Button button2;
-        private Button button3;
-        private TabControl tabControl1;
-        private TabPage tabPage1;
-        private TabPage tabPage2;
-        private TabPage tabPage3;
+        private Label label2;
     }
 }
