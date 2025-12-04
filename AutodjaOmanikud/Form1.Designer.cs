@@ -159,7 +159,7 @@
             Controls.Add(button2);
             Controls.Add(button3);
             Name = "Form1";
-            Text = "Autod ja Omanikud";
+            Text = "Omanikud";
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
