@@ -26,20 +26,26 @@ namespace AutodjaOmanikud
         {
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                SqlDataAdapter da = new SqlDataAdapter(
-                    "SELECT Id, FullName, Phone FROM Owners", con);
-
+                // Täida DataTable kohe
+                SqlDataAdapter da = new SqlDataAdapter("SELECT Id, FullName, Phone FROM Owners", con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
-                dataGridView1.Columns.Clear();
                 dataGridView1.DataSource = dt;
+
+                // Kustuta valitud rida ja tühjenda tekstikastid
+                selectedOwnerId = -1;
+                textBox1.Text = "";
+                textBox2.Text = "";
             }
 
-            selectedOwnerId = -1;
-            textBox1.Text = "";
-            textBox2.Text = "";
+            // Muuda DataGridView veerud veidi ilusamaks
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.ReadOnly = true;
+            dataGridView1.AllowUserToAddRows = false;
         }
+
 
         private void button1_Click(object sender, EventArgs e)  // Lisa
         {

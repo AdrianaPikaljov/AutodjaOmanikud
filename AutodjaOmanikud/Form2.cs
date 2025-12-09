@@ -13,25 +13,45 @@ namespace AutodjaOmanikud
         public Form2()
         {
             InitializeComponent();
+            this.Load += Form2_Load;
         }
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            LoadCars();
-            LoadOwners();
+            try
+            {
+                LoadOwners();
+                LoadCars();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Viga laadimisel: " + ex.Message);
+            }
         }
 
-        private void LoadCars()
+        private void LoadCars(string searchTerm = "")
         {
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                SqlDataAdapter da = new SqlDataAdapter(
-                    "SELECT Id, Brand, Model, RegistrationNumber, OwnerId FROM Cars", con);
+                string query = "SELECT Cars.Id, Cars.Brand, Cars.Model, Cars.RegistrationNumber, Owners.FullName AS Owner " +
+                               "FROM Cars INNER JOIN Owners ON Cars.OwnerId = Owners.Id";
+
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    query += " WHERE Cars.Brand LIKE @Search OR Cars.Model LIKE @Search OR Cars.RegistrationNumber LIKE @Search OR Owners.FullName LIKE @Search";
+                }
+
+                SqlDataAdapter da = new SqlDataAdapter(query, con);
+
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    da.SelectCommand.Parameters.AddWithValue("@Search", "%" + searchTerm + "%");
+                }
 
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
-                dataGridView1.Columns.Clear();
+                dataGridView1.AutoGenerateColumns = true;
                 dataGridView1.DataSource = dt;
             }
 
@@ -52,6 +72,7 @@ namespace AutodjaOmanikud
                 comboBoxOwner.DataSource = dt;
                 comboBoxOwner.DisplayMember = "FullName";
                 comboBoxOwner.ValueMember = "Id";
+                comboBoxOwner.SelectedIndex = -1;
             }
         }
 
@@ -65,12 +86,11 @@ namespace AutodjaOmanikud
 
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                string query = "INSERT INTO Cars (Brand, Model, RegistrationNumber, OwnerId) VALUES (@Brand, @Model, @RegistrationNumber, @OwnerId)";
+                string query = "INSERT INTO Cars (Brand, Model, RegistrationNumber, OwnerId) VALUES (@Brand, @Model, @RegNumber, @OwnerId)";
                 SqlCommand cmd = new SqlCommand(query, con);
-
                 cmd.Parameters.AddWithValue("@Brand", textBoxBrand.Text);
                 cmd.Parameters.AddWithValue("@Model", textBoxModel.Text);
-                cmd.Parameters.AddWithValue("@RegistrationNumber", textBoxRegistrationNumber.Text);
+                cmd.Parameters.AddWithValue("@RegNumber", textBoxRegistrationNumber.Text);
                 cmd.Parameters.AddWithValue("@OwnerId", comboBoxOwner.SelectedValue);
 
                 con.Open();
@@ -113,12 +133,12 @@ namespace AutodjaOmanikud
 
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                string query = "UPDATE Cars SET Brand=@Brand, Model=@Model, RegistrationNumber=@RegistrationNumber, OwnerId=@OwnerId WHERE Id=@Id";
+                string query = "UPDATE Cars SET Brand=@Brand, Model=@Model, RegistrationNumber=@RegNumber, OwnerId=@OwnerId WHERE Id=@Id";
                 SqlCommand cmd = new SqlCommand(query, con);
 
                 cmd.Parameters.AddWithValue("@Brand", textBoxBrand.Text);
                 cmd.Parameters.AddWithValue("@Model", textBoxModel.Text);
-                cmd.Parameters.AddWithValue("@RegistrationNumber", textBoxRegistrationNumber.Text);
+                cmd.Parameters.AddWithValue("@RegNumber", textBoxRegistrationNumber.Text);
                 cmd.Parameters.AddWithValue("@OwnerId", comboBoxOwner.SelectedValue);
                 cmd.Parameters.AddWithValue("@Id", selectedCarId);
 
@@ -134,35 +154,32 @@ namespace AutodjaOmanikud
         {
             if (e.RowIndex >= 0)
             {
-                var row = dataGridView1.Rows[e.RowIndex];
-
-                textBoxBrand.Text = row.Cells["Brand"]?.Value?.ToString() ?? "";
-                textBoxModel.Text = row.Cells["Model"]?.Value?.ToString() ?? "";
-                textBoxRegistrationNumber.Text = row.Cells["RegistrationNumber"]?.Value?.ToString() ?? "";
-
+                DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+                textBoxBrand.Text = row.Cells["Brand"].Value.ToString();
+                textBoxModel.Text = row.Cells["Model"].Value.ToString();
+                textBoxRegistrationNumber.Text = row.Cells["RegistrationNumber"].Value.ToString();
                 selectedCarId = Convert.ToInt32(row.Cells["Id"].Value);
             }
         }
 
-        private void comboBoxOwner_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
-            Form1 form1 = new Form1();
-            form1.Show();
+            Form1 f1 = new Form1();
+            f1.Show();
             this.Hide();
         }
-
-
 
         private void button2_Click(object sender, EventArgs e)
         {
-            Form3 form3 = new Form3();
-            form3.Show();
+            Form3 f3 = new Form3();
+            f3.Show();
             this.Hide();
+        }
+
+        // Otsingu TextBox sündmus
+        private void textBoxSearch_TextChanged(object sender, EventArgs e)
+        {
+            LoadCars(textBoxSearch.Text);
         }
     }
 }
