@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace AutodjaOmanikud
 {
-    public class CarService
+    public class ServiceBooking
     {
-        public int Id { get; set; }          // ← UUS primaarvõti
+        public int Id { get; set; }
 
         public int CarId { get; set; }
         public Car Car { get; set; }
@@ -16,8 +16,8 @@ namespace AutodjaOmanikud
         public int ServiceId { get; set; }
         public Service Service { get; set; }
 
-        public DateTime DateOfService { get; set; }
-        public int Mileage { get; set; }
+        public DateTime BookingDate { get; set; }
+        public bool IsCancelled { get; set; }
     }
 
 }

@@ -8,10 +8,18 @@ namespace AutodjaOmanikud
 {
     public partial class Form3 : Form
     {
+        // CONNECTION
         string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=AutoServiceDB;Trusted_Connection=True;";
-        private int selectedCarId = -1;
-        private int selectedServiceId = -1;
-        private DateTime selectedServiceDate;
+
+        // TAB 1 SELECTED RECORD
+        private int selectedCarServiceId = -1;
+
+        // TAB 2 SELECTED PAYMENT
+        private int selectedPaymentId = -1;
+
+        // TAB 3 SELECTED BOOKING
+        private int selectedBookingId = -1;
+
 
         public Form3()
         {
@@ -24,7 +32,14 @@ namespace AutodjaOmanikud
             LoadCars();
             LoadServices();
             LoadCarServices();
+            LoadCarServicesForPayment();
+            LoadPayments();
+            LoadBookings();
         }
+
+        // ============================================================
+        // LOAD CARS + SERVICES
+        // ============================================================
 
         private void LoadCars()
         {
@@ -37,7 +52,10 @@ namespace AutodjaOmanikud
                 comboBoxCar.DataSource = dt;
                 comboBoxCar.DisplayMember = "CarName";
                 comboBoxCar.ValueMember = "Id";
-                comboBoxCar.SelectedIndex = -1;
+
+                comboBoxBookingCar.DataSource = dt.Copy();
+                comboBoxBookingCar.DisplayMember = "CarName";
+                comboBoxBookingCar.ValueMember = "Id";
             }
         }
 
@@ -52,43 +70,53 @@ namespace AutodjaOmanikud
                 comboBoxService.DataSource = dt;
                 comboBoxService.DisplayMember = "Name";
                 comboBoxService.ValueMember = "Id";
-                comboBoxService.SelectedIndex = -1;
+
+                comboBoxBookingService.DataSource = dt.Copy();
+                comboBoxBookingService.DisplayMember = "Name";
+                comboBoxBookingService.ValueMember = "Id";
             }
         }
+
+        // ============================================================
+        // TAB 1 – CAR SERVICES CRUD
+        // ============================================================
 
         private void LoadCarServices()
         {
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                string query = @"SELECT cs.CarId, c.Brand + ' ' + c.Model AS Car, 
-                                        cs.ServiceId, s.Name AS Service,
-                                        cs.DateOfService, cs.Mileage
-                                 FROM CarServices cs
-                                 INNER JOIN Cars c ON cs.CarId = c.Id
-                                 INNER JOIN Services s ON cs.ServiceId = s.Id";
+                string query = @"
+                    SELECT cs.Id,
+                           cs.CarId,
+                           c.Brand + ' ' + c.Model AS Car,
+                           cs.ServiceId,
+                           s.Name AS Service,
+                           cs.DateOfService,
+                           cs.Mileage
+                    FROM CarServices cs
+                    INNER JOIN Cars c ON cs.CarId = c.Id
+                    INNER JOIN Services s ON cs.ServiceId = s.Id";
+
                 SqlDataAdapter da = new SqlDataAdapter(query, con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
 
                 dataGridViewCarServices.DataSource = dt;
 
-                // Näita veerunimesid selgelt
+                dataGridViewCarServices.Columns["Id"].Visible = false;
                 dataGridViewCarServices.Columns["CarId"].Visible = false;
                 dataGridViewCarServices.Columns["ServiceId"].Visible = false;
-                dataGridViewCarServices.Columns["Car"].HeaderText = "Auto";
-                dataGridViewCarServices.Columns["Service"].HeaderText = "Teenuse nimi";
-                dataGridViewCarServices.Columns["DateOfService"].HeaderText = "Kuupäev";
-                dataGridViewCarServices.Columns["Mileage"].HeaderText = "Läbisõit km";
             }
 
-            selectedCarId = -1;
-            selectedServiceId = -1;
+            selectedCarServiceId = -1;
             textBoxMileage.Text = "";
         }
 
         private void buttonAddService_Click(object sender, EventArgs e)
         {
-            if (comboBoxCar.SelectedValue == null || comboBoxService.SelectedValue == null || string.IsNullOrWhiteSpace(textBoxMileage.Text))
+            if (comboBoxCar.SelectedValue == null ||
+                comboBoxService.SelectedValue == null ||
+                string.IsNullOrWhiteSpace(textBoxMileage.Text))
             {
                 MessageBox.Show("Täida kõik väljad!");
                 return;
@@ -97,27 +125,21 @@ namespace AutodjaOmanikud
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 string query = @"INSERT INTO CarServices (CarId, ServiceId, DateOfService, Mileage)
-                                 VALUES (@CarId, @ServiceId, @DateOfService, @Mileage)";
-                SqlCommand cmd = new SqlCommand(query, con);
+                                 VALUES (@CarId, @ServiceId, @Date, @Mileage)";
 
+                SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@CarId", comboBoxCar.SelectedValue);
                 cmd.Parameters.AddWithValue("@ServiceId", comboBoxService.SelectedValue);
-                cmd.Parameters.AddWithValue("@DateOfService", dateTimePickerServiceDate.Value.Date);
+                cmd.Parameters.AddWithValue("@Date", dateTimePickerServiceDate.Value.Date);
                 cmd.Parameters.AddWithValue("@Mileage", int.Parse(textBoxMileage.Text));
 
                 con.Open();
-                try
-                {
-                    cmd.ExecuteNonQuery();
-                    MessageBox.Show("Teenuse kirje lisatud!");
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Viga lisamisel: " + ex.Message);
-                }
+                cmd.ExecuteNonQuery();
             }
 
             LoadCarServices();
+            LoadCarServicesForPayment();
+            MessageBox.Show("Teenuse kirje lisatud!");
         }
 
         private void dataGridViewCarServices_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -126,45 +148,258 @@ namespace AutodjaOmanikud
             {
                 var row = dataGridViewCarServices.Rows[e.RowIndex];
 
-                selectedCarId = Convert.ToInt32(row.Cells["CarId"].Value);
-                selectedServiceId = Convert.ToInt32(row.Cells["ServiceId"].Value);
-                selectedServiceDate = Convert.ToDateTime(row.Cells["DateOfService"].Value);
+                selectedCarServiceId = Convert.ToInt32(row.Cells["Id"].Value);
 
-                comboBoxCar.SelectedValue = selectedCarId;
-                comboBoxService.SelectedValue = selectedServiceId;
-                dateTimePickerServiceDate.Value = selectedServiceDate;
+                comboBoxCar.SelectedValue = Convert.ToInt32(row.Cells["CarId"].Value);
+                comboBoxService.SelectedValue = Convert.ToInt32(row.Cells["ServiceId"].Value);
+                dateTimePickerServiceDate.Value = Convert.ToDateTime(row.Cells["DateOfService"].Value);
                 textBoxMileage.Text = row.Cells["Mileage"].Value.ToString();
             }
         }
 
         private void buttonDeleteService_Click(object sender, EventArgs e)
         {
-            if (selectedCarId == -1 || selectedServiceId == -1)
+            if (selectedCarServiceId == -1)
             {
-                MessageBox.Show("Vali teenuse kirje, mida kustutada!");
+                MessageBox.Show("Vali rida!");
                 return;
             }
 
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                string query = @"DELETE FROM CarServices 
-                                 WHERE CarId=@CarId AND ServiceId=@ServiceId AND DateOfService=@DateOfService";
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@CarId", selectedCarId);
-                cmd.Parameters.AddWithValue("@ServiceId", selectedServiceId);
-                cmd.Parameters.AddWithValue("@DateOfService", selectedServiceDate);
+                SqlCommand cmd =
+                    new SqlCommand("DELETE FROM CarServices WHERE Id=@Id", con);
+
+                cmd.Parameters.AddWithValue("@Id", selectedCarServiceId);
 
                 con.Open();
                 cmd.ExecuteNonQuery();
             }
 
             LoadCarServices();
-            MessageBox.Show("Teenuse kirje kustutatud!");
+            LoadCarServicesForPayment();
+            MessageBox.Show("Kustutatud!");
         }
 
 
+        // ============================================================
+        // TAB 2 – PAYMENTS CRUD
+        // ============================================================
+
+        private void LoadCarServicesForPayment()
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string sql = @"SELECT Id, 'ID ' + CAST(Id AS VARCHAR(10)) AS Name FROM CarServices";
+                SqlDataAdapter da = new SqlDataAdapter(sql, con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                comboBoxPaymentCarService.DataSource = dt;
+                comboBoxPaymentCarService.DisplayMember = "Name";
+                comboBoxPaymentCarService.ValueMember = "Id";
+            }
+        }
+
+        private void LoadPayments()
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string sql = @"
+                    SELECT 
+                        p.Id,
+                        p.CarServiceId,
+                        p.Amount,
+                        p.IsPaid,
+                        p.PaymentDate
+                    FROM Payments p";
+
+                SqlDataAdapter da = new SqlDataAdapter(sql, con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                dataGridViewPayments.DataSource = dt;
+
+                dataGridViewPayments.Columns["Id"].Visible = false;
+                dataGridViewPayments.Columns["CarServiceId"].HeaderText = "Teenuse ID";
+                dataGridViewPayments.Columns["Amount"].HeaderText = "Summa";
+                dataGridViewPayments.Columns["IsPaid"].HeaderText = "Makstud?";
+                dataGridViewPayments.Columns["PaymentDate"].HeaderText = "Kuupäev";
+            }
+        }
+
+        private void buttonAddPayment_Click(object sender, EventArgs e)
+        {
+            if (comboBoxPaymentCarService.SelectedValue == null ||
+                string.IsNullOrWhiteSpace(textBoxPaymentAmount.Text))
+            {
+                MessageBox.Show("Täida kõik väljad!");
+                return;
+            }
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string sql = @"INSERT INTO Payments
+                    (CarServiceId, Amount, IsPaid, PaymentDate)
+                    VALUES (@csId, @amount, @paid, @date)";
+
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@csId", comboBoxPaymentCarService.SelectedValue);
+                cmd.Parameters.AddWithValue("@amount", decimal.Parse(textBoxPaymentAmount.Text));
+                cmd.Parameters.AddWithValue("@paid", checkBoxPaymentPaid.Checked);
+                cmd.Parameters.AddWithValue("@date", dateTimePickerPayment.Value.Date);
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+
+            LoadPayments();
+        }
+
+        private void dataGridViewPayments_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                var r = dataGridViewPayments.Rows[e.RowIndex];
+
+                selectedPaymentId = Convert.ToInt32(r.Cells["Id"].Value);
+
+                comboBoxPaymentCarService.SelectedValue =
+                    Convert.ToInt32(r.Cells["CarServiceId"].Value);
+
+                textBoxPaymentAmount.Text =
+                    r.Cells["Amount"].Value.ToString();
+
+                checkBoxPaymentPaid.Checked =
+                    Convert.ToBoolean(r.Cells["IsPaid"].Value);
+
+                if (r.Cells["PaymentDate"].Value != DBNull.Value)
+                    dateTimePickerPayment.Value =
+                        Convert.ToDateTime(r.Cells["PaymentDate"].Value);
+            }
+        }
+
+        private void buttonDeletePayment_Click(object sender, EventArgs e)
+        {
+            if (selectedPaymentId == -1)
+            {
+                MessageBox.Show("Vali makse!");
+                return;
+            }
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                SqlCommand cmd =
+                    new SqlCommand("DELETE FROM Payments WHERE Id=@Id", con);
+
+                cmd.Parameters.AddWithValue("@Id", selectedPaymentId);
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+
+            LoadPayments();
+        }
 
 
+        // ============================================================
+        // TAB 3 – BOOKINGS CRUD
+        // ============================================================
+
+        private void LoadBookings()
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string sql = @"
+                    SELECT 
+                        b.Id,
+                        b.CarId,
+                        c.Brand + ' ' + c.Model AS Car,
+                        b.ServiceId,
+                        s.Name AS Service,
+                        b.BookingDate,
+                        b.IsCancelled
+                    FROM ServiceBookings b
+                    INNER JOIN Cars c ON b.CarId = c.Id
+                    INNER JOIN Services s ON b.ServiceId = s.Id";
+
+                SqlDataAdapter da = new SqlDataAdapter(sql, con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                dataGridViewBookings.DataSource = dt;
+
+                dataGridViewBookings.Columns["Id"].Visible = false;
+                dataGridViewBookings.Columns["CarId"].Visible = false;
+                dataGridViewBookings.Columns["ServiceId"].Visible = false;
+            }
+        }
+
+        private void buttonAddBooking_Click(object sender, EventArgs e)
+        {
+            if (comboBoxBookingCar.SelectedValue == null ||
+                comboBoxBookingService.SelectedValue == null)
+            {
+                MessageBox.Show("Täida väljad!");
+                return;
+            }
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string sql = @"INSERT INTO ServiceBookings
+                    (CarId, ServiceId, BookingDate, IsCancelled)
+                    VALUES (@car, @serv, @dt, @cancel)";
+
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@car", comboBoxBookingCar.SelectedValue);
+                cmd.Parameters.AddWithValue("@serv", comboBoxBookingService.SelectedValue);
+                cmd.Parameters.AddWithValue("@dt", dateTimePickerBooking.Value);
+                cmd.Parameters.AddWithValue("@cancel", false);
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+
+            LoadBookings();
+        }
+
+        private void dataGridViewBookings_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                var row = dataGridViewBookings.Rows[e.RowIndex];
+
+                selectedBookingId = Convert.ToInt32(row.Cells["Id"].Value);
+                comboBoxBookingCar.SelectedValue = Convert.ToInt32(row.Cells["CarId"].Value);
+                comboBoxBookingService.SelectedValue = Convert.ToInt32(row.Cells["ServiceId"].Value);
+                dateTimePickerBooking.Value = Convert.ToDateTime(row.Cells["BookingDate"].Value);
+                checkBoxBookingCancelled.Checked = Convert.ToBoolean(row.Cells["IsCancelled"].Value);
+            }
+        }
+
+        private void buttonCancelBooking_Click(object sender, EventArgs e)
+        {
+            if (selectedBookingId == -1)
+            {
+                MessageBox.Show("Vali broneering!");
+                return;
+            }
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string sql = @"UPDATE ServiceBookings
+                               SET IsCancelled = 1
+                               WHERE Id=@Id";
+
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.Parameters.AddWithValue("@Id", selectedBookingId);
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+
+            LoadBookings();
+        }
         private void button2_Click(object sender, EventArgs e)
         {
             Form2 form2 = new Form2();
@@ -178,5 +413,6 @@ namespace AutodjaOmanikud
             form1.Show();
             this.Hide();
         }
+
     }
 }

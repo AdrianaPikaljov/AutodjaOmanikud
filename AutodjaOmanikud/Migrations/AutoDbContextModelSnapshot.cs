@@ -54,10 +54,16 @@ namespace AutodjaOmanikud.Migrations
 
             modelBuilder.Entity("AutodjaOmanikud.CarService", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("CarId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ServiceId")
+                    b.Property<int?>("CarId1")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DateOfService")
@@ -66,9 +72,21 @@ namespace AutodjaOmanikud.Migrations
                     b.Property<int>("Mileage")
                         .HasColumnType("int");
 
-                    b.HasKey("CarId", "ServiceId", "DateOfService");
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ServiceId1")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarId");
+
+                    b.HasIndex("CarId1");
 
                     b.HasIndex("ServiceId");
+
+                    b.HasIndex("ServiceId1");
 
                     b.ToTable("CarServices");
                 });
@@ -94,6 +112,33 @@ namespace AutodjaOmanikud.Migrations
                     b.ToTable("Owners");
                 });
 
+            modelBuilder.Entity("AutodjaOmanikud.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("CarServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarServiceId");
+
+                    b.ToTable("Payments");
+                });
+
             modelBuilder.Entity("AutodjaOmanikud.Service", b =>
                 {
                     b.Property<int>("Id")
@@ -114,6 +159,35 @@ namespace AutodjaOmanikud.Migrations
                     b.ToTable("Services");
                 });
 
+            modelBuilder.Entity("AutodjaOmanikud.ServiceBooking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CarId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CarId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("ServiceBookings");
+                });
+
             modelBuilder.Entity("AutodjaOmanikud.Car", b =>
                 {
                     b.HasOne("AutodjaOmanikud.Owner", "Owner")
@@ -128,13 +202,51 @@ namespace AutodjaOmanikud.Migrations
             modelBuilder.Entity("AutodjaOmanikud.CarService", b =>
                 {
                     b.HasOne("AutodjaOmanikud.Car", "Car")
+                        .WithMany()
+                        .HasForeignKey("CarId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AutodjaOmanikud.Car", null)
                         .WithMany("CarServices")
+                        .HasForeignKey("CarId1");
+
+                    b.HasOne("AutodjaOmanikud.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AutodjaOmanikud.Service", null)
+                        .WithMany("CarServices")
+                        .HasForeignKey("ServiceId1");
+
+                    b.Navigation("Car");
+
+                    b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("AutodjaOmanikud.Payment", b =>
+                {
+                    b.HasOne("AutodjaOmanikud.CarService", "CarService")
+                        .WithMany()
+                        .HasForeignKey("CarServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CarService");
+                });
+
+            modelBuilder.Entity("AutodjaOmanikud.ServiceBooking", b =>
+                {
+                    b.HasOne("AutodjaOmanikud.Car", "Car")
+                        .WithMany()
                         .HasForeignKey("CarId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AutodjaOmanikud.Service", "Service")
-                        .WithMany("CarServices")
+                        .WithMany()
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
