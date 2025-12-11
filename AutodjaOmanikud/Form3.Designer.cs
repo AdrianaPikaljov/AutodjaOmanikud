@@ -32,6 +32,8 @@ namespace AutodjaOmanikud
         private Label labelPaymentCS;
         private Label labelPaymentAmount;
         private Label labelPaymentDate;
+        private ComboBox comboBoxPaymentFilter;
+        private Label labelPaymentFilter;
 
         // TAB 3
         private DarkDataGridView dataGridViewBookings;
@@ -75,9 +77,9 @@ namespace AutodjaOmanikud
             button2 = new ModernButton();
             button3 = new ModernButton();
 
+            // ===== FORM =====
             SuspendLayout();
 
-            // ===== FORM =====
             BackColor = Color.FromArgb(30, 30, 30);
             ForeColor = Color.FromArgb(230, 230, 230);
             ClientSize = new Size(900, 580);
@@ -300,6 +302,25 @@ namespace AutodjaOmanikud
             };
             buttonDeletePayment.Click += buttonDeletePayment_Click;
 
+            // ---- FILTER (Makstud / Maksmata / Kõik) ----
+            labelPaymentFilter = new Label()
+            {
+                Location = new Point(600, 304),
+                Text = "Filter:",
+                AutoSize = true
+            };
+
+            comboBoxPaymentFilter = new ComboBox()
+            {
+                Location = new Point(650, 300),
+                Size = new Size(150, 25),
+                BackColor = Color.FromArgb(45, 45, 45),
+                ForeColor = Color.White,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Name = "comboBoxPaymentFilter"
+            };
+            comboBoxPaymentFilter.SelectedIndexChanged += comboBoxPaymentFilter_SelectedIndexChanged;
+
             tabPage2.Controls.Add(dataGridViewPayments);
             tabPage2.Controls.Add(comboBoxPaymentCarService);
             tabPage2.Controls.Add(textBoxPaymentAmount);
@@ -310,6 +331,8 @@ namespace AutodjaOmanikud
             tabPage2.Controls.Add(labelPaymentDate);
             tabPage2.Controls.Add(buttonAddPayment);
             tabPage2.Controls.Add(buttonDeletePayment);
+            tabPage2.Controls.Add(labelPaymentFilter);
+            tabPage2.Controls.Add(comboBoxPaymentFilter);
 
             // ===== TAB 3 – BRONEERINGUD =====
             tabPage3.Text = "Broneeringud";
@@ -349,7 +372,7 @@ namespace AutodjaOmanikud
                 CustomFormat = "dd.MM.yyyy HH:mm"
             };
 
-            // HOIAME checkboxi koodis, aga teeme nähtamatuks (nagu küsisid)
+            // чекбокс прячем, но в коде используем
             checkBoxBookingCancelled = new CheckBox()
             {
                 Location = new Point(140, 420),
@@ -357,7 +380,7 @@ namespace AutodjaOmanikud
                 AutoSize = true,
                 ForeColor = Color.White,
                 BackColor = Color.Transparent,
-                Visible = false // ei näe vormil, aga kood saab ikka .Checked seada
+                Visible = false
             };
 
             labelBookingCar = new Label()

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using System;
 using System.Data;
-using System.Drawing;
 using System.Windows.Forms;
 
 namespace AutodjaOmanikud
@@ -29,6 +28,16 @@ namespace AutodjaOmanikud
 
         private void Form3_Load(object sender, EventArgs e)
         {
+            // Инициализация фильтра платежей
+            if (comboBoxPaymentFilter != null)
+            {
+                comboBoxPaymentFilter.Items.Clear();
+                comboBoxPaymentFilter.Items.Add("Kõik");
+                comboBoxPaymentFilter.Items.Add("Makstud");
+                comboBoxPaymentFilter.Items.Add("Maksmata");
+                comboBoxPaymentFilter.SelectedIndex = 0;
+            }
+
             LoadCars();
             LoadServices();
             LoadCarServices();
@@ -122,6 +131,12 @@ namespace AutodjaOmanikud
                 return;
             }
 
+            if (!int.TryParse(textBoxMileage.Text, out int mileage))
+            {
+                MessageBox.Show("Läbisõit peab olema number!");
+                return;
+            }
+
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 string query = @"INSERT INTO CarServices (CarId, ServiceId, DateOfService, Mileage)
@@ -131,7 +146,7 @@ namespace AutodjaOmanikud
                 cmd.Parameters.AddWithValue("@CarId", comboBoxCar.SelectedValue);
                 cmd.Parameters.AddWithValue("@ServiceId", comboBoxService.SelectedValue);
                 cmd.Parameters.AddWithValue("@Date", dateTimePickerServiceDate.Value.Date);
-                cmd.Parameters.AddWithValue("@Mileage", int.Parse(textBoxMileage.Text));
+                cmd.Parameters.AddWithValue("@Mileage", mileage);
 
                 con.Open();
                 cmd.ExecuteNonQuery();
@@ -183,7 +198,7 @@ namespace AutodjaOmanikud
 
 
         // ============================================================
-        // TAB 2 – PAYMENTS CRUD
+        // TAB 2 – PAYMENTS CRUD + FILTER + PHONE
         // ============================================================
 
         private void LoadCarServicesForPayment()
@@ -205,14 +220,31 @@ namespace AutodjaOmanikud
         {
             using (SqlConnection con = new SqlConnection(connectionString))
             {
-                string sql = @"
+                string where = "";
+
+                if (comboBoxPaymentFilter != null && comboBoxPaymentFilter.SelectedIndex >= 0)
+                {
+                    if (comboBoxPaymentFilter.SelectedIndex == 1)       // Makstud
+                        where = "WHERE p.IsPaid = 1";
+                    else if (comboBoxPaymentFilter.SelectedIndex == 2)  // Maksmata
+                        where = "WHERE p.IsPaid = 0";
+                }
+
+                string sql = $@"
                     SELECT 
                         p.Id,
                         p.CarServiceId,
+                        c.Brand + ' ' + c.Model AS Car,
+                        o.FullName AS Owner,
+                        o.Phone,
                         p.Amount,
                         p.IsPaid,
                         p.PaymentDate
-                    FROM Payments p";
+                    FROM Payments p
+                    JOIN CarServices cs ON p.CarServiceId = cs.Id
+                    JOIN Cars c ON cs.CarId = c.Id
+                    JOIN Owners o ON c.OwnerId = o.Id
+                    {where}";
 
                 SqlDataAdapter da = new SqlDataAdapter(sql, con);
                 DataTable dt = new DataTable();
@@ -222,10 +254,18 @@ namespace AutodjaOmanikud
 
                 dataGridViewPayments.Columns["Id"].Visible = false;
                 dataGridViewPayments.Columns["CarServiceId"].HeaderText = "Teenuse ID";
+                dataGridViewPayments.Columns["Car"].HeaderText = "Auto";
+                dataGridViewPayments.Columns["Owner"].HeaderText = "Omanik";
+                dataGridViewPayments.Columns["Phone"].HeaderText = "Telefon";
                 dataGridViewPayments.Columns["Amount"].HeaderText = "Summa";
                 dataGridViewPayments.Columns["IsPaid"].HeaderText = "Makstud?";
                 dataGridViewPayments.Columns["PaymentDate"].HeaderText = "Kuupäev";
             }
+        }
+
+        private void comboBoxPaymentFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            LoadPayments();
         }
 
         private void buttonAddPayment_Click(object sender, EventArgs e)
@@ -237,6 +277,12 @@ namespace AutodjaOmanikud
                 return;
             }
 
+            if (!decimal.TryParse(textBoxPaymentAmount.Text, out decimal amount))
+            {
+                MessageBox.Show("Summa peab olema number!");
+                return;
+            }
+
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 string sql = @"INSERT INTO Payments
@@ -245,7 +291,7 @@ namespace AutodjaOmanikud
 
                 SqlCommand cmd = new SqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("@csId", comboBoxPaymentCarService.SelectedValue);
-                cmd.Parameters.AddWithValue("@amount", decimal.Parse(textBoxPaymentAmount.Text));
+                cmd.Parameters.AddWithValue("@amount", amount);
                 cmd.Parameters.AddWithValue("@paid", checkBoxPaymentPaid.Checked);
                 cmd.Parameters.AddWithValue("@date", dateTimePickerPayment.Value.Date);
 
@@ -303,7 +349,7 @@ namespace AutodjaOmanikud
 
 
         // ============================================================
-        // TAB 3 – BOOKINGS CRUD
+        // TAB 3 – BOOKINGS CRUD + PHONE
         // ============================================================
 
         private void LoadBookings()
@@ -315,12 +361,15 @@ namespace AutodjaOmanikud
                         b.Id,
                         b.CarId,
                         c.Brand + ' ' + c.Model AS Car,
+                        o.FullName AS Owner,
+                        o.Phone,
                         b.ServiceId,
                         s.Name AS Service,
                         b.BookingDate,
                         b.IsCancelled
                     FROM ServiceBookings b
                     INNER JOIN Cars c ON b.CarId = c.Id
+                    INNER JOIN Owners o ON c.OwnerId = o.Id
                     INNER JOIN Services s ON b.ServiceId = s.Id";
 
                 SqlDataAdapter da = new SqlDataAdapter(sql, con);
@@ -332,6 +381,13 @@ namespace AutodjaOmanikud
                 dataGridViewBookings.Columns["Id"].Visible = false;
                 dataGridViewBookings.Columns["CarId"].Visible = false;
                 dataGridViewBookings.Columns["ServiceId"].Visible = false;
+
+                dataGridViewBookings.Columns["Car"].HeaderText = "Auto";
+                dataGridViewBookings.Columns["Owner"].HeaderText = "Omanik";
+                dataGridViewBookings.Columns["Phone"].HeaderText = "Telefon";
+                dataGridViewBookings.Columns["Service"].HeaderText = "Teenuse";
+                dataGridViewBookings.Columns["BookingDate"].HeaderText = "Kuupäev";
+                dataGridViewBookings.Columns["IsCancelled"].HeaderText = "Tühistatud";
             }
         }
 
@@ -400,6 +456,8 @@ namespace AutodjaOmanikud
 
             LoadBookings();
         }
+
+        // NAVIGATION BUTTONS
         private void button2_Click(object sender, EventArgs e)
         {
             Form2 form2 = new Form2();
@@ -413,6 +471,5 @@ namespace AutodjaOmanikud
             form1.Show();
             this.Hide();
         }
-
     }
 }
