@@ -1,190 +1,510 @@
-using Microsoft.Data.SqlClient;
-using System;
-using System.Data;
+﻿using System;
+using System.Linq;
 using System.Windows.Forms;
+using AutodjaOmanikud;
+using Microsoft.EntityFrameworkCore;
 
-namespace AutodjaOmanikud
+namespace AutojaOmanikud
 {
     public partial class Form1 : Form
     {
-        string connectionString =
-            @"Server=(localdb)\MSSQLLocalDB;Database=AutoServiceDB;Trusted_Connection=True;";
-
-        private int selectedOwnerId = -1;
-
         public Form1()
         {
             InitializeComponent();
+
+            // -------- Owners (Omanik) --------
+            btnOwnerAdd.Click += btnOwnerAdd_Click;
+            btnOwnerDelete.Click += btnOwnerKustuta_Click;
+            btnOwnerUpdate.Click += btnOwnerUuenda_Click;
+            dgvOwners.CellClick += dgvOwners_CellClick;
+
+            // -------- Cars (Auto) --------
+            btnCarAdd.Click += btnCarAdd_Click;
+            btnCarDelete.Click += btnCarKustuta_Click;
+            btnCarUpdate.Click += btnCarUuenda_Click;
+            dgvCars.CellClick += dgvCars_CellClick;
+
+            // -------- Services (Teenus) --------
+            btnServiceAdd.Click += btnServiceAdd_Click;
+            btnServiceDelete.Click += btnServiceKustuta_Click;
+            btnServiceUpdate.Click += btnServiceUuenda_Click;
+            dgvServices.CellClick += dgvServices_CellClick;
+
+            // -------- Hooldus (CarService) --------
+            // ВАЖНО: эти контролы должны существовать на форме с такими Name
+            // dgvHooldus, cbHooldusCar, cbHooldusService, dtpHooldusDate, numHooldusMileage
+            // btnHooldusAdd, btnHooldusDelete, btnHooldusUpdate
+            btnHooldusAdd.Click += btnHooldusAdd_Click;
+            btnHooldusDelete.Click += btnHooldusDelete_Click;
+            btnHooldusUpdate.Click += btnHooldusUpdate_Click;
+            dgvCarServices.CellClick += dgvHooldus_CellClick;
+
+            // Чтобы нельзя было писать руками в ComboBox
+            cbHooldusCar.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbHooldusService.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            LoadAll();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void LoadAll()
         {
             LoadOwners();
+            LoadOwnersToCombo();
+            LoadCars();
+            LoadServices();
+
+            LoadHooldusCombos();
+            LoadHooldusGrid();
         }
+
+        // ===================== OWNERS =====================
 
         private void LoadOwners()
         {
-            using (SqlConnection con = new SqlConnection(connectionString))
-            {
-                // T�ida DataTable kohe
-                SqlDataAdapter da = new SqlDataAdapter("SELECT Id, FullName, Phone FROM Owners", con);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-
-                dataGridView1.DataSource = dt;
-
-                // Kustuta valitud rida ja t�hjenda tekstikastid
-                selectedOwnerId = -1;
-                textBox1.Text = "";
-                textBox2.Text = "";
-            }
-
-            // Muuda DataGridView veerud veidi ilusamaks
-            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridView1.ReadOnly = true;
-            dataGridView1.AllowUserToAddRows = false;
+            using var db = new AutoDbContext();
+            dgvOwners.AutoGenerateColumns = true;
+            dgvOwners.DataSource = db.Owners.AsNoTracking().ToList();
         }
 
-
-        private void button1_Click(object sender, EventArgs e)  // Lisa
+        private void dgvOwners_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            using (SqlConnection con = new SqlConnection(connectionString))
-            {
-                string query = "INSERT INTO Owners (FullName, Phone) VALUES (@FullName, @Phone)";
-                SqlCommand cmd = new SqlCommand(query, con);
+            if (dgvOwners.CurrentRow?.DataBoundItem is not Owner owner) return;
 
-                cmd.Parameters.AddWithValue("@FullName", textBox1.Text);
-                cmd.Parameters.AddWithValue("@Phone", textBox2.Text);
-
-                con.Open();
-                cmd.ExecuteNonQuery();
-            }
-
-            LoadOwners();
-            MessageBox.Show("Omanik lisatud!");
+            txtOwnerName.Text = owner.FullName;
+            txtOwnerPhone.Text = owner.Phone;
         }
 
-        private void button2_Click_1(object sender, EventArgs e) // Kustuta
+        private void btnOwnerAdd_Click(object sender, EventArgs e)
         {
-            if (selectedOwnerId == -1)
+            var name = txtOwnerName.Text.Trim();
+            var phone = txtOwnerPhone.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
             {
-                MessageBox.Show("Vali rida, mida kustutada!");
+                MessageBox.Show("Введите имя владельца (FullName)");
                 return;
             }
 
-            using (SqlConnection con = new SqlConnection(connectionString))
-            {
-                string query = "DELETE FROM Owners WHERE Id=@Id";
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@Id", selectedOwnerId);
+            using var db = new AutoDbContext();
+            db.Owners.Add(new Owner { FullName = name, Phone = phone });
+            db.SaveChanges();
 
-                con.Open();
-                cmd.ExecuteNonQuery();
-            }
+            txtOwnerName.Clear();
+            txtOwnerPhone.Clear();
 
-            LoadOwners();
-            MessageBox.Show("Omanik kustutatud!");
+            LoadAll();
         }
 
-        private void button3_Click(object sender, EventArgs e) // Uuenda
+        private void btnOwnerKustuta_Click(object sender, EventArgs e)
         {
-            if (selectedOwnerId == -1)
+            if (dgvOwners.CurrentRow?.DataBoundItem is not Owner selected) return;
+
+            using var db = new AutoDbContext();
+            var owner = db.Owners.FirstOrDefault(o => o.Id == selected.Id);
+            if (owner == null) return;
+
+            db.Owners.Remove(owner);
+            db.SaveChanges();
+
+            LoadAll();
+        }
+
+        private void btnOwnerUuenda_Click(object sender, EventArgs e)
+        {
+            if (dgvOwners.CurrentRow?.DataBoundItem is not Owner selected) return;
+
+            var name = txtOwnerName.Text.Trim();
+            var phone = txtOwnerPhone.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(name))
             {
-                MessageBox.Show("Vali rida, mida uuendada!");
+                MessageBox.Show("Введите имя владельца (FullName)");
                 return;
             }
 
-            using (SqlConnection con = new SqlConnection(connectionString))
+            using var db = new AutoDbContext();
+            var owner = db.Owners.FirstOrDefault(o => o.Id == selected.Id);
+            if (owner == null) return;
+
+            owner.FullName = name;
+            owner.Phone = phone;
+
+            db.SaveChanges();
+            LoadAll();
+        }
+
+        // ComboBox owners for cars
+        private void LoadOwnersToCombo()
+        {
+            using var db = new AutoDbContext();
+            var owners = db.Owners.AsNoTracking()
+                .Select(o => new { o.Id, o.FullName })
+                .ToList();
+
+            cbCarOwner.DisplayMember = "FullName";
+            cbCarOwner.ValueMember = "Id";
+            cbCarOwner.DataSource = owners;
+        }
+
+        // ===================== CARS =====================
+
+        private void LoadCars()
+        {
+            using var db = new AutoDbContext();
+
+            dgvCars.AutoGenerateColumns = true;
+            dgvCars.DataSource = db.Cars
+                .Include(c => c.Owner)
+                .AsNoTracking()
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Brand,
+                    c.Model,
+                    c.RegistrationNumber,
+                    Owner = c.Owner.FullName,
+                    c.OwnerId
+                })
+                .ToList();
+        }
+
+        private void dgvCars_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dgvCars.CurrentRow == null) return;
+
+            txtCarBrand.Text = Convert.ToString(dgvCars.CurrentRow.Cells["Brand"].Value);
+            txtCarModel.Text = Convert.ToString(dgvCars.CurrentRow.Cells["Model"].Value);
+            txtCarReg.Text = Convert.ToString(dgvCars.CurrentRow.Cells["RegistrationNumber"].Value);
+
+            var ownerIdObj = dgvCars.CurrentRow.Cells["OwnerId"].Value;
+            if (ownerIdObj != null)
+                cbCarOwner.SelectedValue = Convert.ToInt32(ownerIdObj);
+        }
+
+        private void btnCarAdd_Click(object sender, EventArgs e)
+        {
+            if (cbCarOwner.SelectedValue == null)
             {
-                string query = "UPDATE Owners SET FullName=@FullName, Phone=@Phone WHERE Id=@Id";
-                SqlCommand cmd = new SqlCommand(query, con);
-
-                cmd.Parameters.AddWithValue("@FullName", textBox1.Text);
-                cmd.Parameters.AddWithValue("@Phone", textBox2.Text);
-                cmd.Parameters.AddWithValue("@Id", selectedOwnerId);
-
-                con.Open();
-                cmd.ExecuteNonQuery();
+                MessageBox.Show("Выберите владельца");
+                return;
             }
 
-            LoadOwners();
-            MessageBox.Show("Andmed uuendatud!");
-        }
+            var brand = txtCarBrand.Text.Trim();
+            var model = txtCarModel.Text.Trim();
+            var reg = txtCarReg.Text.Trim();
 
-        private void textBoxSearchName_TextChanged(object sender, EventArgs e)  // Otsing nime j�rgi
-        {
-            using (SqlConnection con = new SqlConnection(connectionString))
+            if (string.IsNullOrWhiteSpace(brand) ||
+                string.IsNullOrWhiteSpace(model) ||
+                string.IsNullOrWhiteSpace(reg))
             {
-                SqlDataAdapter da = new SqlDataAdapter(
-                    "SELECT Id, FullName, Phone FROM Owners WHERE FullName LIKE @search", con);
-
-                da.SelectCommand.Parameters.AddWithValue("@search", "%" + textBoxSearchName.Text + "%");
-
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                dataGridView1.DataSource = dt;
+                MessageBox.Show("Заполните Brand / Model / RegistrationNumber");
+                return;
             }
 
-            selectedOwnerId = -1;
-            textBox1.Text = "";
-            textBox2.Text = "";
+            int ownerId = (int)cbCarOwner.SelectedValue;
+
+            using var db = new AutoDbContext();
+            db.Cars.Add(new Car
+            {
+                Brand = brand,
+                Model = model,
+                RegistrationNumber = reg,
+                OwnerId = ownerId
+            });
+            db.SaveChanges();
+
+            txtCarBrand.Clear();
+            txtCarModel.Clear();
+            txtCarReg.Clear();
+
+            LoadCars();
         }
 
-        private void textBoxSearchPhone_TextChanged(object sender, EventArgs e)  // Otsing telefoni j�rgi
+        private void btnCarKustuta_Click(object sender, EventArgs e)
         {
-            using (SqlConnection con = new SqlConnection(connectionString))
+            if (dgvCars.CurrentRow == null) return;
+
+            var idObj = dgvCars.CurrentRow.Cells["Id"].Value;
+            if (idObj == null) return;
+
+            int carId = Convert.ToInt32(idObj);
+
+            using var db = new AutoDbContext();
+            var car = db.Cars.FirstOrDefault(c => c.Id == carId);
+            if (car == null) return;
+
+            db.Cars.Remove(car);
+            db.SaveChanges();
+
+            LoadCars();
+        }
+
+        private void btnCarUuenda_Click(object sender, EventArgs e)
+        {
+            if (dgvCars.CurrentRow == null) return;
+
+            var idObj = dgvCars.CurrentRow.Cells["Id"].Value;
+            if (idObj == null) return;
+
+            int carId = Convert.ToInt32(idObj);
+
+            if (cbCarOwner.SelectedValue == null)
             {
-                SqlDataAdapter da = new SqlDataAdapter(
-                    "SELECT Id, FullName, Phone FROM Owners WHERE Phone LIKE @search", con);
-
-                da.SelectCommand.Parameters.AddWithValue("@search", "%" + textBoxSearchPhone.Text + "%");
-
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                dataGridView1.DataSource = dt;
+                MessageBox.Show("Выберите владельца");
+                return;
             }
 
-            selectedOwnerId = -1;
-            textBox1.Text = "";
-            textBox2.Text = "";
-        }
+            var brand = txtCarBrand.Text.Trim();
+            var model = txtCarModel.Text.Trim();
+            var reg = txtCarReg.Text.Trim();
 
-        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e) // Valitud rea laadimine
-        {
-            if (e.RowIndex >= 0)
+            if (string.IsNullOrWhiteSpace(brand) ||
+                string.IsNullOrWhiteSpace(model) ||
+                string.IsNullOrWhiteSpace(reg))
             {
-                var row = dataGridView1.Rows[e.RowIndex];
-
-                textBox1.Text = row.Cells["FullName"]?.Value?.ToString() ?? "";
-                textBox2.Text = row.Cells["Phone"]?.Value?.ToString() ?? "";
-
-                selectedOwnerId = Convert.ToInt32(row.Cells["Id"].Value);
+                MessageBox.Show("Заполните Brand / Model / RegistrationNumber");
+                return;
             }
+
+            int ownerId = (int)cbCarOwner.SelectedValue;
+
+            using var db = new AutoDbContext();
+            var car = db.Cars.FirstOrDefault(c => c.Id == carId);
+            if (car == null) return;
+
+            car.Brand = brand;
+            car.Model = model;
+            car.RegistrationNumber = reg;
+            car.OwnerId = ownerId;
+
+            db.SaveChanges();
+            LoadCars();
         }
 
-        private void button5_Click(object sender, EventArgs e)
+        // ===================== SERVICES =====================
+
+        private void LoadServices()
         {
-            Form3 form3 = new Form3();
-            form3.Show();
-            this.Hide();
+            using var db = new AutoDbContext();
+            dgvServices.AutoGenerateColumns = true;
+            dgvServices.DataSource = db.Services.AsNoTracking().ToList();
         }
 
-        private void button4_Click(object sender, EventArgs e)
+        private void dgvServices_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            Form2 form2 = new Form2();
-            form2.Show();
-            this.Hide();
+            if (dgvServices.CurrentRow?.DataBoundItem is not Service s) return;
+
+            txtServiceName.Text = s.Name;
+            numServicePrice.Value = s.Price;
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private void btnServiceAdd_Click(object sender, EventArgs e)
         {
+            var name = txtServiceName.Text.Trim();
+            var price = numServicePrice.Value;
 
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                MessageBox.Show("Введите название услуги (Name)");
+                return;
+            }
+
+            using var db = new AutoDbContext();
+            db.Services.Add(new Service { Name = name, Price = price });
+            db.SaveChanges();
+
+            txtServiceName.Clear();
+            numServicePrice.Value = 0;
+
+            LoadServices();
+            LoadHooldusCombos(); // чтобы ComboBox услуг на Hooldus сразу обновился
         }
 
-        private void tabPage1_Click(object sender, EventArgs e)
+        private void btnServiceKustuta_Click(object sender, EventArgs e)
         {
+            if (dgvServices.CurrentRow?.DataBoundItem is not Service selected) return;
 
+            using var db = new AutoDbContext();
+            var service = db.Services.FirstOrDefault(s => s.Id == selected.Id);
+            if (service == null) return;
+
+            db.Services.Remove(service);
+            db.SaveChanges();
+
+            LoadServices();
+            LoadHooldusCombos();
+        }
+
+        private void btnServiceUuenda_Click(object sender, EventArgs e)
+        {
+            if (dgvServices.CurrentRow?.DataBoundItem is not Service selected) return;
+
+            var name = txtServiceName.Text.Trim();
+            var price = numServicePrice.Value;
+
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                MessageBox.Show("Введите название услуги (Name)");
+                return;
+            }
+
+            using var db = new AutoDbContext();
+            var service = db.Services.FirstOrDefault(s => s.Id == selected.Id);
+            if (service == null) return;
+
+            service.Name = name;
+            service.Price = price;
+
+            db.SaveChanges();
+            LoadServices();
+            LoadHooldusCombos();
+        }
+
+        // ===================== HOOLDUS (CarService) =====================
+
+        private void LoadHooldusCombos()
+        {
+            using var db = new AutoDbContext();
+
+            var cars = db.Cars.AsNoTracking()
+                .Select(c => new
+                {
+                    c.Id,
+                    Title = c.Brand + " " + c.Model + " (" + c.RegistrationNumber + ")"
+                })
+                .ToList();
+
+            cbHooldusCar.DisplayMember = "Title";
+            cbHooldusCar.ValueMember = "Id";
+            cbHooldusCar.DataSource = cars;
+
+            var services = db.Services.AsNoTracking()
+                .Select(s => new { s.Id, s.Name })
+                .ToList();
+
+            cbHooldusService.DisplayMember = "Name";
+            cbHooldusService.ValueMember = "Id";
+            cbHooldusService.DataSource = services;
+        }
+
+        private void LoadHooldusGrid()
+        {
+            using var db = new AutoDbContext();
+
+            dgvCarServices.AutoGenerateColumns = true;
+            dgvCarServices.DataSource = db.CarServices
+                .Include(cs => cs.Car)
+                .Include(cs => cs.Service)
+                .AsNoTracking()
+                .Select(cs => new
+                {
+                    cs.Id,
+                    Car = cs.Car.Brand + " " + cs.Car.Model,
+                    cs.Car.RegistrationNumber,
+                    Service = cs.Service.Name,
+                    cs.DateOfService,
+                    cs.Mileage,
+                    cs.CarId,
+                    cs.ServiceId
+                })
+                .ToList();
+        }
+
+        private void btnHooldusAdd_Click(object sender, EventArgs e)
+        {
+            if (cbHooldusCar.SelectedValue == null || cbHooldusService.SelectedValue == null)
+            {
+                MessageBox.Show("Выберите авто и услугу");
+                return;
+            }
+
+            int carId = (int)cbHooldusCar.SelectedValue;
+            int serviceId = (int)cbHooldusService.SelectedValue;
+
+            using var db = new AutoDbContext();
+            db.CarServices.Add(new CarService
+            {
+                CarId = carId,
+                ServiceId = serviceId,
+                DateOfService = dtpHooldusDate.Value,
+                Mileage = (int)numHooldusMileage.Value
+            });
+
+            db.SaveChanges();
+            LoadHooldusGrid();
+        }
+
+        private void btnHooldusDelete_Click(object sender, EventArgs e)
+        {
+            if (dgvCarServices.CurrentRow == null) return;
+
+            var idObj = dgvCarServices.CurrentRow.Cells["Id"].Value;
+            if (idObj == null) return;
+
+            int id = Convert.ToInt32(idObj);
+
+            using var db = new AutoDbContext();
+            var cs = db.CarServices.FirstOrDefault(x => x.Id == id);
+            if (cs == null) return;
+
+            db.CarServices.Remove(cs);
+            db.SaveChanges();
+
+            LoadHooldusGrid();
+        }
+
+        private void btnHooldusUpdate_Click(object sender, EventArgs e)
+        {
+            if (dgvCarServices.CurrentRow == null) return;
+
+            var idObj = dgvCarServices.CurrentRow.Cells["Id"].Value;
+            if (idObj == null) return;
+
+            int id = Convert.ToInt32(idObj);
+
+            if (cbHooldusCar.SelectedValue == null || cbHooldusService.SelectedValue == null)
+            {
+                MessageBox.Show("Выберите авто и услугу");
+                return;
+            }
+
+            int carId = (int)cbHooldusCar.SelectedValue;
+            int serviceId = (int)cbHooldusService.SelectedValue;
+
+            using var db = new AutoDbContext();
+            var cs = db.CarServices.FirstOrDefault(x => x.Id == id);
+            if (cs == null) return;
+
+            cs.CarId = carId;
+            cs.ServiceId = serviceId;
+            cs.DateOfService = dtpHooldusDate.Value;
+            cs.Mileage = (int)numHooldusMileage.Value;
+
+            db.SaveChanges();
+            LoadHooldusGrid();
+        }
+
+        private void dgvHooldus_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dgvCarServices.CurrentRow == null) return;
+
+            var carIdObj = dgvCarServices.CurrentRow.Cells["CarId"].Value;
+            var serviceIdObj = dgvCarServices.CurrentRow.Cells["ServiceId"].Value;
+
+            if (carIdObj != null) cbHooldusCar.SelectedValue = Convert.ToInt32(carIdObj);
+            if (serviceIdObj != null) cbHooldusService.SelectedValue = Convert.ToInt32(serviceIdObj);
+
+            var dateObj = dgvCarServices.CurrentRow.Cells["DateOfService"].Value;
+            if (dateObj != null) dtpHooldusDate.Value = Convert.ToDateTime(dateObj);
+
+            var milObj = dgvCarServices.CurrentRow.Cells["Mileage"].Value;
+            if (milObj != null)
+            {
+                var m = Convert.ToInt32(milObj);
+                if (m < (int)numHooldusMileage.Minimum) m = (int)numHooldusMileage.Minimum;
+                if (m > (int)numHooldusMileage.Maximum) m = (int)numHooldusMileage.Maximum;
+                numHooldusMileage.Value = m;
+            }
         }
     }
 }
