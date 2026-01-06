@@ -119,10 +119,10 @@
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="txtSearch.Location" type="System.Drawing.Point, System.Drawing">
-    <value>209, 176</value>
+    <value>219, 176</value>
   </data>
   <data name="txtSearch.Size" type="System.Drawing.Size, System.Drawing">
-    <value>193, 23</value>
+    <value>135, 23</value>
   </data>
   <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="txtSearch.TabIndex" type="System.Int32, mscorlib">
@@ -150,7 +150,7 @@
     <value>5</value>
   </data>
   <data name="btnOwnerUpdate.Text" xml:space="preserve">
-    <value>Uuenda</value>
+    <value>Update</value>
   </data>
   <data name="&gt;&gt;btnOwnerUpdate.Name" xml:space="preserve">
     <value>btnOwnerUpdate</value>
@@ -174,7 +174,7 @@
     <value>4</value>
   </data>
   <data name="btnOwnerDelete.Text" xml:space="preserve">
-    <value>Kustuta</value>
+    <value>Delete</value>
   </data>
   <data name="&gt;&gt;btnOwnerDelete.Name" xml:space="preserve">
     <value>btnOwnerDelete</value>
@@ -198,7 +198,7 @@
     <value>3</value>
   </data>
   <data name="btnOwnerAdd.Text" xml:space="preserve">
-    <value>Lisa</value>
+    <value>Add</value>
   </data>
   <data name="&gt;&gt;btnOwnerAdd.Name" xml:space="preserve">
     <value>btnOwnerAdd</value>
@@ -287,13 +287,13 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="Omanik.Size" type="System.Drawing.Size, System.Drawing">
-    <value>792, 376</value>
+    <value>792, 374</value>
   </data>
   <data name="Omanik.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
   <data name="Omanik.Text" xml:space="preserve">
-    <value>Omanik</value>
+    <value>Owners</value>
   </data>
   <data name="&gt;&gt;Omanik.Name" xml:space="preserve">
     <value>Omanik</value>
@@ -308,10 +308,10 @@
     <value>0</value>
   </data>
   <data name="txtSearch2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>202, 159</value>
+    <value>212, 159</value>
   </data>
   <data name="txtSearch2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 23</value>
+    <value>135, 23</value>
   </data>
   <data name="txtSearch2.TabIndex" type="System.Int32, mscorlib">
     <value>14</value>
@@ -380,7 +380,7 @@
     <value>11</value>
   </data>
   <data name="btnCarUpdate.Text" xml:space="preserve">
-    <value>Uuenda</value>
+    <value>Update</value>
   </data>
   <data name="&gt;&gt;btnCarUpdate.Name" xml:space="preserve">
     <value>btnCarUpdate</value>
@@ -404,7 +404,7 @@
     <value>10</value>
   </data>
   <data name="btnCarDelete.Text" xml:space="preserve">
-    <value>Kustuta</value>
+    <value>Delete</value>
   </data>
   <data name="&gt;&gt;btnCarDelete.Name" xml:space="preserve">
     <value>btnCarDelete</value>
@@ -428,7 +428,7 @@
     <value>9</value>
   </data>
   <data name="btnCarAdd.Text" xml:space="preserve">
-    <value>Lisa</value>
+    <value>Add</value>
   </data>
   <data name="&gt;&gt;btnCarAdd.Name" xml:space="preserve">
     <value>btnCarAdd</value>
@@ -515,13 +515,13 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="Auto.Size" type="System.Drawing.Size, System.Drawing">
-    <value>792, 376</value>
+    <value>792, 374</value>
   </data>
   <data name="Auto.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
   <data name="Auto.Text" xml:space="preserve">
-    <value>Auto</value>
+    <value>Cars</value>
   </data>
   <data name="&gt;&gt;Auto.Name" xml:space="preserve">
     <value>Auto</value>
@@ -536,10 +536,10 @@
     <value>1</value>
   </data>
   <data name="txtSearch3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>329, 159</value>
+    <value>308, 159</value>
   </data>
   <data name="txtSearch3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>162, 23</value>
+    <value>135, 23</value>
   </data>
   <data name="txtSearch3.TabIndex" type="System.Int32, mscorlib">
     <value>24</value>
@@ -608,7 +608,7 @@
     <value>19</value>
   </data>
   <data name="btnServiceUpdate.Text" xml:space="preserve">
-    <value>Uuenda</value>
+    <value>Update</value>
   </data>
   <data name="&gt;&gt;btnServiceUpdate.Name" xml:space="preserve">
     <value>btnServiceUpdate</value>
@@ -632,7 +632,7 @@
     <value>18</value>
   </data>
   <data name="btnServiceDelete.Text" xml:space="preserve">
-    <value>Kustuta</value>
+    <value>Delete</value>
   </data>
   <data name="&gt;&gt;btnServiceDelete.Name" xml:space="preserve">
     <value>btnServiceDelete</value>
@@ -656,7 +656,7 @@
     <value>17</value>
   </data>
   <data name="btnServiceAdd.Text" xml:space="preserve">
-    <value>Lisa</value>
+    <value>Add</value>
   </data>
   <data name="&gt;&gt;btnServiceAdd.Name" xml:space="preserve">
     <value>btnServiceAdd</value>
@@ -722,13 +722,13 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="Teenus.Size" type="System.Drawing.Size, System.Drawing">
-    <value>792, 376</value>
+    <value>792, 374</value>
   </data>
   <data name="Teenus.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
   </data>
   <data name="Teenus.Text" xml:space="preserve">
-    <value>Teenus</value>
+    <value>Services</value>
   </data>
   <data name="&gt;&gt;Teenus.Name" xml:space="preserve">
     <value>Teenus</value>
@@ -743,10 +743,10 @@
     <value>2</value>
   </data>
   <data name="txtSearch4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>437, 159</value>
+    <value>417, 162</value>
   </data>
   <data name="txtSearch4.Size" type="System.Drawing.Size, System.Drawing">
-    <value>151, 23</value>
+    <value>135, 23</value>
   </data>
   <data name="txtSearch4.TabIndex" type="System.Int32, mscorlib">
     <value>34</value>
@@ -857,7 +857,7 @@
     <value>28</value>
   </data>
   <data name="btnHooldusUpdate.Text" xml:space="preserve">
-    <value>Uuenda</value>
+    <value>Update</value>
   </data>
   <data name="&gt;&gt;btnHooldusUpdate.Name" xml:space="preserve">
     <value>btnHooldusUpdate</value>
@@ -881,7 +881,7 @@
     <value>27</value>
   </data>
   <data name="btnHooldusDelete.Text" xml:space="preserve">
-    <value>Kustuta</value>
+    <value>Delete</value>
   </data>
   <data name="&gt;&gt;btnHooldusDelete.Name" xml:space="preserve">
     <value>btnHooldusDelete</value>
@@ -905,7 +905,7 @@
     <value>26</value>
   </data>
   <data name="btnHooldusAdd.Text" xml:space="preserve">
-    <value>Lisa</value>
+    <value>Add</value>
   </data>
   <data name="&gt;&gt;btnHooldusAdd.Name" xml:space="preserve">
     <value>btnHooldusAdd</value>
@@ -950,13 +950,13 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="HoolduseKirje.Size" type="System.Drawing.Size, System.Drawing">
-    <value>792, 376</value>
+    <value>792, 374</value>
   </data>
   <data name="HoolduseKirje.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
   </data>
   <data name="HoolduseKirje.Text" xml:space="preserve">
-    <value>Hoolduse Kirje</value>
+    <value>Maintenance</value>
   </data>
   <data name="&gt;&gt;HoolduseKirje.Name" xml:space="preserve">
     <value>HoolduseKirje</value>
@@ -971,16 +971,13 @@
     <value>3</value>
   </data>
   <data name="txtSearch5.Location" type="System.Drawing.Point, System.Drawing">
-    <value>500, 162</value>
+    <value>471, 162</value>
   </data>
   <data name="txtSearch5.Size" type="System.Drawing.Size, System.Drawing">
-    <value>163, 23</value>
+    <value>135, 23</value>
   </data>
   <data name="txtSearch5.TabIndex" type="System.Int32, mscorlib">
     <value>44</value>
-  </data>
-  <data name="txtSearch5.Text" xml:space="preserve">
-    <value>S</value>
   </data>
   <data name="&gt;&gt;txtSearch5.Name" xml:space="preserve">
     <value>txtSearch5</value>
@@ -1001,13 +998,13 @@
     <value>339, 162</value>
   </data>
   <data name="chkIsPaid.Size" type="System.Drawing.Size, System.Drawing">
-    <value>72, 19</value>
+    <value>49, 19</value>
   </data>
   <data name="chkIsPaid.TabIndex" type="System.Int32, mscorlib">
     <value>43</value>
   </data>
   <data name="chkIsPaid.Text" xml:space="preserve">
-    <value>Makstud</value>
+    <value>Paid</value>
   </data>
   <data name="&gt;&gt;chkIsPaid.Name" xml:space="preserve">
     <value>chkIsPaid</value>
@@ -1052,7 +1049,7 @@
     <value>41</value>
   </data>
   <data name="btnPaymentAdd.Text" xml:space="preserve">
-    <value>Lisa</value>
+    <value>Add</value>
   </data>
   <data name="&gt;&gt;btnPaymentAdd.Name" xml:space="preserve">
     <value>btnPaymentAdd</value>
@@ -1118,7 +1115,7 @@
     <value>36</value>
   </data>
   <data name="btnPaymentUpdate.Text" xml:space="preserve">
-    <value>Uuenda</value>
+    <value>Update</value>
   </data>
   <data name="&gt;&gt;btnPaymentUpdate.Name" xml:space="preserve">
     <value>btnPaymentUpdate</value>
@@ -1142,7 +1139,7 @@
     <value>35</value>
   </data>
   <data name="btnPaymentDelete.Text" xml:space="preserve">
-    <value>Kustuta</value>
+    <value>Delete</value>
   </data>
   <data name="&gt;&gt;btnPaymentDelete.Name" xml:space="preserve">
     <value>btnPaymentDelete</value>
@@ -1187,13 +1184,13 @@
     <value>3, 3, 3, 3</value>
   </data>
   <data name="tabPage1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>792, 376</value>
+    <value>792, 374</value>
   </data>
   <data name="tabPage1.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
   </data>
   <data name="tabPage1.Text" xml:space="preserve">
-    <value>Maksud</value>
+    <value>Payments</value>
   </data>
   <data name="&gt;&gt;tabPage1.Name" xml:space="preserve">
     <value>tabPage1</value>
@@ -1211,10 +1208,10 @@
     <value>Bottom</value>
   </data>
   <data name="tabControl1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>0, 46</value>
+    <value>0, 48</value>
   </data>
   <data name="tabControl1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>800, 404</value>
+    <value>800, 402</value>
   </data>
   <data name="tabControl1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -1232,7 +1229,7 @@
     <value>1</value>
   </data>
   <data name="cbLanguage.Location" type="System.Drawing.Point, System.Drawing">
-    <value>672, 12</value>
+    <value>613, 23</value>
   </data>
   <data name="cbLanguage.Size" type="System.Drawing.Size, System.Drawing">
     <value>121, 23</value>
@@ -1265,7 +1262,7 @@
     <value>Form1</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>Form1</value>
+    <value>Form1US</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>System.Windows.Forms.Form, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

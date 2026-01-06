@@ -1,24 +1,24 @@
-﻿using AutodjaOmanikud;
-using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using AutodjaOmanikud;
+using Microsoft.EntityFrameworkCore;
 
 namespace AutojaOmanikud
 {
-    public partial class Form1 : Form
+    public partial class Form1US : Form
     {
         // ===================== LIGHT-BLUE UI THEME COLORS =====================
-        private readonly Color _bg = Color.FromArgb(241, 246, 255);
-        private readonly Color _card = Color.White;
-        private readonly Color _border = Color.FromArgb(209, 225, 255);
-        private readonly Color _primary = Color.FromArgb(59, 130, 246);
-        private readonly Color _primaryDark = Color.FromArgb(37, 99, 235);
-        private readonly Color _danger = Color.FromArgb(239, 68, 68);
-        private readonly Color _text = Color.FromArgb(17, 24, 39);
-        private readonly Color _header = Color.FromArgb(225, 236, 255);
-        private readonly Color _select = Color.FromArgb(219, 234, 254);
+        private readonly Color _bg = Color.FromArgb(241, 246, 255);        // very light blue
+        private readonly Color _card = Color.White;                        // card background
+        private readonly Color _border = Color.FromArgb(209, 225, 255);    // light border
+        private readonly Color _primary = Color.FromArgb(59, 130, 246);    // blue
+        private readonly Color _primaryDark = Color.FromArgb(37, 99, 235); // darker blue
+        private readonly Color _danger = Color.FromArgb(239, 68, 68);      // red
+        private readonly Color _text = Color.FromArgb(17, 24, 39);         // dark text
+        private readonly Color _header = Color.FromArgb(225, 236, 255);    // header light blue
+        private readonly Color _select = Color.FromArgb(219, 234, 254);    // selection light blue
 
         // ===================== SEARCH SOURCES (to avoid row.Visible crash) =====================
         private object? _ownersSource;
@@ -27,9 +27,11 @@ namespace AutojaOmanikud
         private object? _carServicesSource;
         private object? _paymentsSource;
 
-        public Form1()
+        public Form1US()
         {
             InitializeComponent();
+
+            ApplyEnglishUiTexts();
 
             ApplyUiTheme();
             InitPlaceholders();
@@ -37,23 +39,23 @@ namespace AutojaOmanikud
 
             // Owners
             btnOwnerAdd.Click += btnOwnerAdd_Click;
-            btnOwnerDelete.Click += btnOwnerKustuta_Click;
-            btnOwnerUpdate.Click += btnOwnerUuenda_Click;
+            btnOwnerDelete.Click += btnOwnerDelete_Click;
+            btnOwnerUpdate.Click += btnOwnerUpdate_Click;
             dgvOwners.CellClick += dgvOwners_CellClick;
 
             // Cars
             btnCarAdd.Click += btnCarAdd_Click;
-            btnCarDelete.Click += btnCarKustuta_Click;
-            btnCarUpdate.Click += btnCarUuenda_Click;
+            btnCarDelete.Click += btnCarDelete_Click;
+            btnCarUpdate.Click += btnCarUpdate_Click;
             dgvCars.CellClick += dgvCars_CellClick;
 
             // Services
             btnServiceAdd.Click += btnServiceAdd_Click;
-            btnServiceDelete.Click += btnServiceKustuta_Click;
-            btnServiceUpdate.Click += btnServiceUuenda_Click;
+            btnServiceDelete.Click += btnServiceDelete_Click;
+            btnServiceUpdate.Click += btnServiceUpdate_Click;
             dgvServices.CellClick += dgvServices_CellClick;
 
-            // CarServices (Hooldus)
+            // Maintenance
             btnHooldusAdd.Click += btnHooldusAdd_Click;
             btnHooldusDelete.Click += btnHooldusDelete_Click;
             btnHooldusUpdate.Click += btnHooldusUpdate_Click;
@@ -65,7 +67,6 @@ namespace AutojaOmanikud
             btnPaymentDelete.Click += btnPaymentDelete_Click;
             dgvPayments.CellClick += dgvPayments_CellClick;
 
-            // Combo styles
             cbHooldusCar.DropDownStyle = ComboBoxStyle.DropDownList;
             cbHooldusService.DropDownStyle = ComboBoxStyle.DropDownList;
             cbPaymentCarService.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -73,19 +74,15 @@ namespace AutojaOmanikud
             cbCarOwner.DropDownStyle = ComboBoxStyle.DropDownList;
             cbLanguage.DropDownStyle = ComboBoxStyle.DropDownList;
 
-            // Search boxes
+            // ✅ Hook up the 5 search textboxes (same naming as EST form)
             txtSearch.TextChanged += txtSearch_TextChanged;   // owners
             txtSearch2.TextChanged += txtSearch2_TextChanged; // cars
             txtSearch3.TextChanged += txtSearch3_TextChanged; // services
-            txtSearch4.TextChanged += txtSearch4_TextChanged; // carServices
+            txtSearch4.TextChanged += txtSearch4_TextChanged; // maintenance
             txtSearch5.TextChanged += txtSearch5_TextChanged; // payments
 
             LoadAll();
         }
-
-        // ===================== SIMPLE VALIDATION HELPERS =====================
-
-        private bool IsEmpty(TextBox tb) => string.IsNullOrWhiteSpace(GetText(tb));
 
         // ===================== SEARCH HELPERS =====================
 
@@ -131,51 +128,55 @@ namespace AutojaOmanikud
             dgv.DataSource = filtered;
         }
 
-        // ===================== LANGUAGE SWITCH =====================
+        // ===================== ONLY TEXTS IN ENGLISH =====================
 
-        private void InitLanguageCombo()
+        private void ApplyEnglishUiTexts()
         {
-            cbLanguage.Items.Clear();
-            cbLanguage.Items.Add("EST");
-            cbLanguage.Items.Add("ENG");
-
-            cbLanguage.SelectedIndexChanged -= cbLanguage_SelectedIndexChanged;
-            cbLanguage.SelectedItem = "EST";
-            cbLanguage.SelectedIndexChanged += cbLanguage_SelectedIndexChanged;
-        }
-
-        private void cbLanguage_SelectedIndexChanged(object? sender, EventArgs e)
-        {
-            if (cbLanguage.SelectedItem == null) return;
-            var selected = cbLanguage.SelectedItem.ToString();
-
-            if (selected == "ENG")
+            try
             {
-                var f = new Form1US();
-                f.StartPosition = FormStartPosition.Manual;
-                f.Location = this.Location;
-                f.Show();
-                this.Hide();
+                Omanik.Text = "Owners";
+                Auto.Text = "Cars";
+                Teenus.Text = "Services";
+                HoolduseKirje.Text = "Maintenance";
+                tabPage1.Text = "Payments";
             }
-        }
+            catch { }
 
-        protected override void OnFormClosed(FormClosedEventArgs e)
-        {
-            Application.Exit();
+            btnOwnerAdd.Text = "Add";
+            btnOwnerUpdate.Text = "Update";
+            btnOwnerDelete.Text = "Delete";
+
+            btnCarAdd.Text = "Add";
+            btnCarUpdate.Text = "Update";
+            btnCarDelete.Text = "Delete";
+
+            btnServiceAdd.Text = "Add";
+            btnServiceUpdate.Text = "Update";
+            btnServiceDelete.Text = "Delete";
+
+            btnHooldusAdd.Text = "Add";
+            btnHooldusUpdate.Text = "Update";
+            btnHooldusDelete.Text = "Delete";
+
+            btnPaymentAdd.Text = "Add";
+            btnPaymentUpdate.Text = "Update";
+            btnPaymentDelete.Text = "Delete";
+
+            chkIsPaid.Text = "Paid";
         }
 
         // ===================== PLACEHOLDERS =====================
 
         private void InitPlaceholders()
         {
-            SetPlaceholder(txtOwnerName, "Nimi");
-            SetPlaceholder(txtOwnerPhone, "Telefon");
+            SetPlaceholder(txtOwnerName, "Name");
+            SetPlaceholder(txtOwnerPhone, "Phone");
 
-            SetPlaceholder(txtCarBrand, "Mark");
-            SetPlaceholder(txtCarModel, "Mudel");
-            SetPlaceholder(txtCarReg, "Reg. nr");
+            SetPlaceholder(txtCarBrand, "Brand");
+            SetPlaceholder(txtCarModel, "Model");
+            SetPlaceholder(txtCarReg, "Reg. No.");
 
-            SetPlaceholder(txtServiceName, "Teenuse nimetus");
+            SetPlaceholder(txtServiceName, "Service name");
         }
 
         private void SetPlaceholder(TextBox tb, string placeholder)
@@ -207,6 +208,7 @@ namespace AutojaOmanikud
         private void TextBox_Leave(object? sender, EventArgs e)
         {
             if (sender is not TextBox tb) return;
+
             if (string.IsNullOrWhiteSpace(tb.Text))
             {
                 tb.Text = (string?)tb.Tag;
@@ -327,9 +329,11 @@ namespace AutojaOmanikud
             g.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             g.MultiSelect = false;
             g.ReadOnly = true;
+
             g.AllowUserToAddRows = false;
             g.AllowUserToDeleteRows = false;
             g.AllowUserToResizeRows = false;
+
             g.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             g.RowTemplate.Height = 30;
         }
@@ -416,12 +420,46 @@ namespace AutojaOmanikud
             b.Height = 34;
         }
 
+        // ===================== LANGUAGE SWITCH =====================
+
+        private void InitLanguageCombo()
+        {
+            cbLanguage.Items.Clear();
+            cbLanguage.Items.Add("EST");
+            cbLanguage.Items.Add("ENG");
+
+            cbLanguage.SelectedIndexChanged -= cbLanguage_SelectedIndexChanged;
+            cbLanguage.SelectedItem = "ENG";
+            cbLanguage.SelectedIndexChanged += cbLanguage_SelectedIndexChanged;
+        }
+
+        private void cbLanguage_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (cbLanguage.SelectedItem == null) return;
+
+            string selected = cbLanguage.SelectedItem.ToString()!;
+            if (selected == "EST")
+            {
+                var f = new Form1();
+                f.StartPosition = FormStartPosition.Manual;
+                f.Location = this.Location;
+                f.Show();
+                this.Hide();
+            }
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            Application.Exit();
+        }
+
         // ===================== LOAD ALL =====================
 
         private void LoadAll()
         {
             LoadOwners();
             LoadOwnersToCombo();
+
             LoadCars();
 
             LoadServices();
@@ -434,7 +472,7 @@ namespace AutojaOmanikud
             LoadPaymentsGrid();
         }
 
-        // ===================== GRID COLUMN FIXERS (EST) =====================
+        // ===================== GRID COLUMN FIXERS (EN) =====================
 
         private void RenameCol(DataGridView grid, string colName, string header, bool hide = false)
         {
@@ -444,68 +482,82 @@ namespace AutojaOmanikud
             c.Visible = !hide;
         }
 
-        private void FixOwnersGridColumns()
+        private void FixOwnersGridColumns_EN()
         {
             if (dgvOwners.Columns.Count == 0) return;
 
             RenameCol(dgvOwners, "Id", "ID", hide: true);
-            RenameCol(dgvOwners, "FullName", "Nimi");
-            RenameCol(dgvOwners, "Phone", "Telefon");
+            RenameCol(dgvOwners, "FullName", "Name");
+            RenameCol(dgvOwners, "Phone", "Phone");
 
             RenameCol(dgvOwners, "Cars", "Cars", hide: true);
-            RenameCol(dgvOwners, "Car", "Car", hide: true);
             RenameCol(dgvOwners, "CarServices", "CarServices", hide: true);
             RenameCol(dgvOwners, "Payments", "Payments", hide: true);
         }
 
-        private void FixCarsGridColumns()
+        private void FixCarsGridColumns_EN()
         {
             if (dgvCars.Columns.Count == 0) return;
+
             RenameCol(dgvCars, "Id", "ID", hide: true);
-            RenameCol(dgvCars, "Brand", "Mark");
-            RenameCol(dgvCars, "Model", "Mudel");
-            RenameCol(dgvCars, "RegistrationNumber", "Reg. nr");
-            RenameCol(dgvCars, "Owner", "Omanik");
+            RenameCol(dgvCars, "Brand", "Brand");
+            RenameCol(dgvCars, "Model", "Model");
+            RenameCol(dgvCars, "RegistrationNumber", "Reg. No.");
+            RenameCol(dgvCars, "Owner", "Owner");
             RenameCol(dgvCars, "OwnerId", "OwnerId", hide: true);
+
+            RenameCol(dgvCars, "OwnerNavigation", "Owner", hide: true);
+            RenameCol(dgvCars, "CarServices", "CarServices", hide: true);
+            RenameCol(dgvCars, "Payments", "Payments", hide: true);
         }
 
-        private void FixServicesGridColumns()
+        private void FixServicesGridColumns_EN()
         {
             if (dgvServices.Columns.Count == 0) return;
 
             RenameCol(dgvServices, "Id", "ID", hide: true);
-            RenameCol(dgvServices, "Name", "Teenus");
-            RenameCol(dgvServices, "Price", "Hind (€)");
+            RenameCol(dgvServices, "Name", "Service");
+            RenameCol(dgvServices, "Price", "Price (€)");
 
             RenameCol(dgvServices, "CarServices", "CarServices", hide: true);
         }
 
-        private void FixCarServicesGridColumns()
+        private void FixCarServicesGridColumns_EN()
         {
             if (dgvCarServices.Columns.Count == 0) return;
+
             RenameCol(dgvCarServices, "Id", "ID", hide: true);
-            RenameCol(dgvCarServices, "Auto", "Auto");
-            RenameCol(dgvCarServices, "RegNr", "Reg. nr");
-            RenameCol(dgvCarServices, "Teenus", "Teenus");
-            RenameCol(dgvCarServices, "Summa", "Summa (€)");
-            RenameCol(dgvCarServices, "DateOfService", "Kuupäev");
-            RenameCol(dgvCarServices, "Mileage", "Läbisõit");
+            RenameCol(dgvCarServices, "Auto", "Car");
+            RenameCol(dgvCarServices, "RegNr", "Reg. No.");
+            RenameCol(dgvCarServices, "Teenus", "Service");
+            RenameCol(dgvCarServices, "Summa", "Amount (€)");
+            RenameCol(dgvCarServices, "DateOfService", "Service date");
+            RenameCol(dgvCarServices, "Mileage", "Mileage");
+
             RenameCol(dgvCarServices, "CarId", "CarId", hide: true);
             RenameCol(dgvCarServices, "ServiceId", "ServiceId", hide: true);
+
+            RenameCol(dgvCarServices, "Car", "Car", hide: true);
+            RenameCol(dgvCarServices, "Service", "Service", hide: true);
+            RenameCol(dgvCarServices, "Payments", "Payments", hide: true);
         }
 
-        private void FixPaymentsGridColumns()
+        private void FixPaymentsGridColumns_EN()
         {
             if (dgvPayments.Columns.Count == 0) return;
+
             RenameCol(dgvPayments, "Id", "ID", hide: true);
-            RenameCol(dgvPayments, "Auto", "Auto");
-            RenameCol(dgvPayments, "RegNr", "Reg. nr");
-            RenameCol(dgvPayments, "OmanikuTelefon", "Omaniku telefon");
-            RenameCol(dgvPayments, "Teenus", "Teenus");
-            RenameCol(dgvPayments, "Summa", "Summa (€)");
-            RenameCol(dgvPayments, "Makstud", "Makstud");
-            RenameCol(dgvPayments, "PaymentDate", "Makse kuupäev");
+            RenameCol(dgvPayments, "Auto", "Car");
+            RenameCol(dgvPayments, "RegNr", "Reg. No.");
+            RenameCol(dgvPayments, "OmanikuTelefon", "Owner phone");
+            RenameCol(dgvPayments, "Teenus", "Service");
+            RenameCol(dgvPayments, "Summa", "Amount (€)");
+            RenameCol(dgvPayments, "Makstud", "Paid");
+            RenameCol(dgvPayments, "PaymentDate", "Payment date");
             RenameCol(dgvPayments, "CarServiceId", "CarServiceId", hide: true);
+
+            RenameCol(dgvPayments, "CarService", "CarService", hide: true);
+            RenameCol(dgvPayments, "Owner", "Owner", hide: true);
         }
 
         // ===================== OWNERS =====================
@@ -518,14 +570,14 @@ namespace AutojaOmanikud
                 .Select(o => new
                 {
                     o.Id,
-                    o.FullName,
-                    o.Phone
+                    FullName = o.FullName,
+                    Phone = o.Phone
                 })
                 .ToList();
 
-            FixOwnersGridColumns();
+            FixOwnersGridColumns_EN();
             CacheSource(dgvOwners, ref _ownersSource);
-            ApplySearchRebind(dgvOwners, _ownersSource, txtSearch.Text); // keep search active
+            ApplySearchRebind(dgvOwners, _ownersSource, txtSearch.Text);
         }
 
         private void dgvOwners_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -543,7 +595,7 @@ namespace AutojaOmanikud
 
             if (string.IsNullOrWhiteSpace(name))
             {
-                MessageBox.Show("Sisesta omaniku nimi.");
+                MessageBox.Show("Please enter the owner's name.");
                 return;
             }
 
@@ -558,7 +610,7 @@ namespace AutojaOmanikud
             LoadOwnersToCombo();
         }
 
-        private void btnOwnerKustuta_Click(object sender, EventArgs e)
+        private void btnOwnerDelete_Click(object sender, EventArgs e)
         {
             if (dgvOwners.CurrentRow == null) return;
             int id = Convert.ToInt32(dgvOwners.CurrentRow.Cells["Id"].Value);
@@ -574,7 +626,7 @@ namespace AutojaOmanikud
             LoadOwnersToCombo();
         }
 
-        private void btnOwnerUuenda_Click(object sender, EventArgs e)
+        private void btnOwnerUpdate_Click(object sender, EventArgs e)
         {
             if (dgvOwners.CurrentRow == null) return;
             int id = Convert.ToInt32(dgvOwners.CurrentRow.Cells["Id"].Value);
@@ -584,7 +636,7 @@ namespace AutojaOmanikud
 
             if (string.IsNullOrWhiteSpace(name))
             {
-                MessageBox.Show("Sisesta omaniku nimi.");
+                MessageBox.Show("Please enter the owner's name.");
                 return;
             }
 
@@ -614,7 +666,10 @@ namespace AutojaOmanikud
         private void LoadCars()
         {
             using var db = new AutoDbContext();
-            dgvCars.DataSource = db.Cars.Include(c => c.Owner).AsNoTracking()
+
+            dgvCars.DataSource = db.Cars
+                .Include(c => c.Owner)
+                .AsNoTracking()
                 .Select(c => new
                 {
                     c.Id,
@@ -623,9 +678,10 @@ namespace AutojaOmanikud
                     c.RegistrationNumber,
                     Owner = c.Owner.FullName,
                     c.OwnerId
-                }).ToList();
+                })
+                .ToList();
 
-            FixCarsGridColumns();
+            FixCarsGridColumns_EN();
             CacheSource(dgvCars, ref _carsSource);
             ApplySearchRebind(dgvCars, _carsSource, txtSearch2.Text);
         }
@@ -633,9 +689,11 @@ namespace AutojaOmanikud
         private void dgvCars_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (dgvCars.CurrentRow == null) return;
+
             SetText(txtCarBrand, dgvCars.CurrentRow.Cells["Brand"].Value?.ToString());
             SetText(txtCarModel, dgvCars.CurrentRow.Cells["Model"].Value?.ToString());
             SetText(txtCarReg, dgvCars.CurrentRow.Cells["RegistrationNumber"].Value?.ToString());
+
             cbCarOwner.SelectedValue = dgvCars.CurrentRow.Cells["OwnerId"].Value;
         }
 
@@ -649,7 +707,7 @@ namespace AutojaOmanikud
                 string.IsNullOrWhiteSpace(model) ||
                 string.IsNullOrWhiteSpace(reg))
             {
-                MessageBox.Show("Täida kõik auto väljad.");
+                MessageBox.Show("Please fill in all car fields.");
                 return;
             }
 
@@ -666,12 +724,13 @@ namespace AutojaOmanikud
             SetText(txtCarBrand, "");
             SetText(txtCarModel, "");
             SetText(txtCarReg, "");
+
             LoadCars();
             LoadHooldusCombos();
             LoadPaymentCarServiceCombo();
         }
 
-        private void btnCarKustuta_Click(object sender, EventArgs e)
+        private void btnCarDelete_Click(object sender, EventArgs e)
         {
             if (dgvCars.CurrentRow == null) return;
             int id = (int)dgvCars.CurrentRow.Cells["Id"].Value;
@@ -688,7 +747,7 @@ namespace AutojaOmanikud
             LoadPaymentCarServiceCombo();
         }
 
-        private void btnCarUuenda_Click(object sender, EventArgs e)
+        private void btnCarUpdate_Click(object sender, EventArgs e)
         {
             if (dgvCars.CurrentRow == null) return;
             int id = (int)dgvCars.CurrentRow.Cells["Id"].Value;
@@ -701,7 +760,7 @@ namespace AutojaOmanikud
                 string.IsNullOrWhiteSpace(model) ||
                 string.IsNullOrWhiteSpace(reg))
             {
-                MessageBox.Show("Täida kõik auto väljad.");
+                MessageBox.Show("Please fill in all car fields.");
                 return;
             }
 
@@ -715,6 +774,7 @@ namespace AutojaOmanikud
             car.OwnerId = (int)cbCarOwner.SelectedValue;
 
             db.SaveChanges();
+
             LoadCars();
             LoadHooldusCombos();
             LoadPaymentCarServiceCombo();
@@ -735,7 +795,7 @@ namespace AutojaOmanikud
                 })
                 .ToList();
 
-            FixServicesGridColumns();
+            FixServicesGridColumns_EN();
             CacheSource(dgvServices, ref _servicesSource);
             ApplySearchRebind(dgvServices, _servicesSource, txtSearch3.Text);
         }
@@ -757,7 +817,7 @@ namespace AutojaOmanikud
 
             if (string.IsNullOrWhiteSpace(name))
             {
-                MessageBox.Show("Sisesta teenuse nimetus.");
+                MessageBox.Show("Please enter a service name.");
                 return;
             }
 
@@ -774,7 +834,7 @@ namespace AutojaOmanikud
             LoadPaymentCarServiceCombo();
         }
 
-        private void btnServiceKustuta_Click(object sender, EventArgs e)
+        private void btnServiceDelete_Click(object sender, EventArgs e)
         {
             if (dgvServices.CurrentRow == null) return;
             int id = Convert.ToInt32(dgvServices.CurrentRow.Cells["Id"].Value);
@@ -792,15 +852,16 @@ namespace AutojaOmanikud
             LoadPaymentCarServiceCombo();
         }
 
-        private void btnServiceUuenda_Click(object sender, EventArgs e)
+        private void btnServiceUpdate_Click(object sender, EventArgs e)
         {
             if (dgvServices.CurrentRow == null) return;
             int id = Convert.ToInt32(dgvServices.CurrentRow.Cells["Id"].Value);
 
             var name = GetText(txtServiceName);
+
             if (string.IsNullOrWhiteSpace(name))
             {
-                MessageBox.Show("Sisesta teenuse nimetus.");
+                MessageBox.Show("Please enter a service name.");
                 return;
             }
 
@@ -827,7 +888,7 @@ namespace AutojaOmanikud
             cbTeenus.ValueMember = "Id";
         }
 
-        // ===================== CAR SERVICES (HOOLDUS) =====================
+        // ===================== MAINTENANCE (CAR SERVICES) =====================
 
         private void LoadHooldusCombos()
         {
@@ -849,6 +910,7 @@ namespace AutojaOmanikud
         private void LoadHooldusGrid()
         {
             using var db = new AutoDbContext();
+
             dgvCarServices.DataSource = db.CarServices
                 .Include(cs => cs.Car)
                 .Include(cs => cs.Service)
@@ -863,9 +925,10 @@ namespace AutojaOmanikud
                     cs.Mileage,
                     cs.CarId,
                     cs.ServiceId
-                }).ToList();
+                })
+                .ToList();
 
-            FixCarServicesGridColumns();
+            FixCarServicesGridColumns_EN();
             CacheSource(dgvCarServices, ref _carServicesSource);
             ApplySearchRebind(dgvCarServices, _carServicesSource, txtSearch4.Text);
         }
@@ -925,8 +988,15 @@ namespace AutojaOmanikud
         private void dgvHooldus_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (dgvCarServices.CurrentRow == null) return;
+
             cbHooldusCar.SelectedValue = dgvCarServices.CurrentRow.Cells["CarId"].Value;
             cbHooldusService.SelectedValue = dgvCarServices.CurrentRow.Cells["ServiceId"].Value;
+
+            var dateObj = dgvCarServices.CurrentRow.Cells["DateOfService"].Value;
+            if (dateObj != null) dtpHooldusDate.Value = Convert.ToDateTime(dateObj);
+
+            var milObj = dgvCarServices.CurrentRow.Cells["Mileage"].Value;
+            if (milObj != null) numHooldusMileage.Value = Convert.ToDecimal(milObj);
         }
 
         // ===================== PAYMENTS =====================
@@ -969,13 +1039,13 @@ namespace AutojaOmanikud
                     OmanikuTelefon = p.CarService.Car.Owner.Phone,
                     Teenus = p.CarService.Service.Name,
                     Summa = p.Amount,
-                    Makstud = p.IsPaid ? "Jah" : "Ei",
+                    Makstud = p.IsPaid ? "Yes" : "No",
                     p.PaymentDate,
                     p.CarServiceId
                 })
                 .ToList();
 
-            FixPaymentsGridColumns();
+            FixPaymentsGridColumns_EN();
             CacheSource(dgvPayments, ref _paymentsSource);
             ApplySearchRebind(dgvPayments, _paymentsSource, txtSearch5.Text);
         }
@@ -986,11 +1056,11 @@ namespace AutojaOmanikud
 
             cbPaymentCarService.SelectedValue = dgvPayments.CurrentRow.Cells["CarServiceId"].Value;
 
-            var summaObj = dgvPayments.CurrentRow.Cells["Summa"].Value;
-            if (summaObj != null)
-                numPaymentAmount.Value = Convert.ToDecimal(summaObj);
+            var amountObj = dgvPayments.CurrentRow.Cells["Summa"].Value;
+            if (amountObj != null)
+                numPaymentAmount.Value = Convert.ToDecimal(amountObj);
 
-            chkIsPaid.Checked = dgvPayments.CurrentRow.Cells["Makstud"].Value?.ToString() == "Jah";
+            chkIsPaid.Checked = dgvPayments.CurrentRow.Cells["Makstud"].Value?.ToString() == "Yes";
 
             var dateObj = dgvPayments.CurrentRow.Cells["PaymentDate"].Value;
             if (dateObj == null || dateObj == DBNull.Value)
@@ -1054,35 +1124,40 @@ namespace AutojaOmanikud
         }
 
         // ===================== SEARCH TEXTBOX EVENTS =====================
+        // txtSearch  = Owners
+        // txtSearch2 = Cars
+        // txtSearch3 = Services
+        // txtSearch4 = Maintenance
+        // txtSearch5 = Payments
 
         private void txtSearch_TextChanged(object sender, EventArgs e)
         {
             ApplySearchRebind(dgvOwners, _ownersSource, txtSearch.Text);
-            FixOwnersGridColumns();
+            FixOwnersGridColumns_EN();
         }
 
         private void txtSearch2_TextChanged(object sender, EventArgs e)
         {
             ApplySearchRebind(dgvCars, _carsSource, txtSearch2.Text);
-            FixCarsGridColumns();
+            FixCarsGridColumns_EN();
         }
 
         private void txtSearch3_TextChanged(object sender, EventArgs e)
         {
             ApplySearchRebind(dgvServices, _servicesSource, txtSearch3.Text);
-            FixServicesGridColumns();
+            FixServicesGridColumns_EN();
         }
 
         private void txtSearch4_TextChanged(object sender, EventArgs e)
         {
             ApplySearchRebind(dgvCarServices, _carServicesSource, txtSearch4.Text);
-            FixCarServicesGridColumns();
+            FixCarServicesGridColumns_EN();
         }
 
         private void txtSearch5_TextChanged(object sender, EventArgs e)
         {
             ApplySearchRebind(dgvPayments, _paymentsSource, txtSearch5.Text);
-            FixPaymentsGridColumns();
+            FixPaymentsGridColumns_EN();
         }
     }
 }

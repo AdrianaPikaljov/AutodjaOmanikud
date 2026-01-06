@@ -1,6 +1,6 @@
 ﻿namespace AutojaOmanikud
 {
-    partial class Form1
+    partial class Form1US
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1US));
             tabControl1 = new TabControl();
             Omanik = new TabPage();
             btnOwnerUpdate = new Button();
@@ -397,7 +397,6 @@
             // 
             // cbLanguage
             // 
-            cbLanguage.DropDownStyle = ComboBoxStyle.DropDownList;
             cbLanguage.FormattingEnabled = true;
             resources.ApplyResources(cbLanguage, "cbLanguage");
             cbLanguage.Name = "cbLanguage";
@@ -406,39 +405,34 @@
             // 
             resources.ApplyResources(txtSearch, "txtSearch");
             txtSearch.Name = "txtSearch";
-            txtSearch.TextChanged += txtSearch_TextChanged;
             // 
             // txtSearch2
             // 
             resources.ApplyResources(txtSearch2, "txtSearch2");
             txtSearch2.Name = "txtSearch2";
-            txtSearch2.TextChanged += txtSearch2_TextChanged;
             // 
             // txtSearch3
             // 
             resources.ApplyResources(txtSearch3, "txtSearch3");
             txtSearch3.Name = "txtSearch3";
-            txtSearch3.TextChanged += txtSearch3_TextChanged;
             // 
             // txtSearch4
             // 
             resources.ApplyResources(txtSearch4, "txtSearch4");
             txtSearch4.Name = "txtSearch4";
-            txtSearch4.TextChanged += txtSearch4_TextChanged;
             // 
             // txtSearch5
             // 
             resources.ApplyResources(txtSearch5, "txtSearch5");
             txtSearch5.Name = "txtSearch5";
-            txtSearch5.TextChanged += txtSearch5_TextChanged;
             // 
-            // Form1
+            // Form1US
             // 
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(cbLanguage);
             Controls.Add(tabControl1);
-            Name = "Form1";
+            Name = "Form1US";
             tabControl1.ResumeLayout(false);
             Omanik.ResumeLayout(false);
             Omanik.PerformLayout();
